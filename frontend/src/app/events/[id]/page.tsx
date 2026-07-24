@@ -197,7 +197,7 @@ const EventDetailPage = () => {
     setVerifyError('')
     setVerifyResults(null)
     try {
-      const data = await apiClient.verifyVotesByEvent(event.id, verifyPhone.trim())
+      const data = await apiClient.verifyVotesByEvent(event.id, `254${verifyPhone.trim()}`)
       setVerifyResults(data.votes || [])
       setVerifyTotalVotes(data.total_votes ?? 0)
       setVerifyTotalTransactions(data.total_transactions ?? 0)
@@ -382,7 +382,7 @@ const EventDetailPage = () => {
             {event.audience && <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium">{event.audience}</span>}
             {priceLabel && <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium">{priceLabel}</span>}
             {isVotingOpen && (
-              <Link href="/voting" className="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1 hover:bg-red-700 transition-colors">
+              <Link href={event.slug ? `/voting/${event.slug}` : '/voting'} className="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1 hover:bg-red-700 transition-colors">
                 <Vote className="w-3 h-3" /> Voting Open
               </Link>
             )}
@@ -774,7 +774,7 @@ const EventDetailPage = () => {
                   </div>
                   {isVotingOpen ? (
                     <Link
-                      href="/voting"
+                      href={event.slug ? `/voting/${event.slug}` : '/voting'}
                       className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors text-center whitespace-nowrap flex-shrink-0"
                     >
                       Vote Now
@@ -794,13 +794,17 @@ const EventDetailPage = () => {
                 <div className="mt-4 border-t border-red-200/50 pt-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Check Your Votes for this Event</label>
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <input
-                      type="tel"
-                      value={verifyPhone}
-                      onChange={(e) => { setVerifyPhone(e.target.value.replace(/\D/g, '')); setVerifyError('') }}
-                      placeholder="712345678"
-                      className="w-full sm:flex-1 px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
-                    />
+                    <div className="flex w-full sm:flex-1">
+                      <span className="inline-flex items-center px-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-xl text-sm text-gray-600 font-medium">+254</span>
+                      <input
+                        type="tel"
+                        value={verifyPhone}
+                        onChange={(e) => { setVerifyPhone(e.target.value.replace(/\D/g, '')); setVerifyError('') }}
+                        placeholder="712345678"
+                        maxLength={9}
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-r-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                      />
+                    </div>
                     <button
                       onClick={handleVerifyForEvent}
                       disabled={verifyLoading}
@@ -812,7 +816,7 @@ const EventDetailPage = () => {
                   {verifyError && <p className="text-sm text-red-700 mt-2">{verifyError}</p>}
                   {verifyResults && (
                     <div className="mt-3 bg-white border border-gray-100 rounded-xl p-3 overflow-hidden">
-                      <p className="text-xs text-gray-500">Results for {verifyPhone}</p>
+                      <p className="text-xs text-gray-500">Results for +254{verifyPhone}</p>
                       <p className="text-sm font-semibold text-gray-900 mt-0.5">Total Votes: {verifyTotalVotes ?? 0} · Transactions: {verifyTotalTransactions ?? 0}</p>
                       <div className="mt-2 space-y-2 max-h-64 overflow-y-auto">
                         {verifyResults.length === 0 ? (
