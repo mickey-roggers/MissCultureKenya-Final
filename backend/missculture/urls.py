@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import JsonResponse
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView
 from .error_handlers import (
     health_check, debug_info, admin_debug_info, db_performance_check,
     error_404, error_500, error_403, error_400
@@ -41,6 +42,10 @@ urlpatterns = [
     path('api/main/', include('main.urls')),
     path('api/gallery/', include('gallery.urls')),
     path('api/events/', include('events.urls')),
+
+    # API documentation (admin-only, see SPECTACULAR_SETTINGS)
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
 
 # Serve media files in development

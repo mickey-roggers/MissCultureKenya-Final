@@ -1,0 +1,4383 @@
+openapi: 3.0.3
+info:
+  title: Miss Culture Global Kenya API
+  version: 1.0.0
+  description: REST API for events, ticketing, voting, contributions, gallery and
+    site content.
+paths:
+  /api/admin-debug/:
+    get:
+      operationId: api_admin_debug_retrieve
+      description: Admin-only debug endpoint with detailed information
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/db-performance/:
+    get:
+      operationId: api_db_performance_retrieve
+      description: Check database query performance and connection health
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/debug/:
+    get:
+      operationId: api_debug_retrieve
+      description: Public debug endpoint with safe configuration info
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/audit-logs/:
+    get:
+      operationId: api_events_audit_logs_list
+      parameters:
+      - in: query
+        name: action
+        schema:
+          type: string
+          enum:
+          - admin_action
+          - contestant_edit
+          - event_setting_change
+          - payment_adjustment
+          - payment_verified
+          - ticket_issued
+          - vote_reversal
+        description: |-
+          * `vote_reversal` - Vote Reversal
+          * `contestant_edit` - Contestant Edit
+          * `event_setting_change` - Event Setting Change
+          * `payment_adjustment` - Payment Adjustment
+          * `payment_verified` - Payment Verified
+          * `ticket_issued` - Ticket Issued
+          * `admin_action` - Admin Action
+      - in: query
+        name: event
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogList'
+          description: ''
+  /api/events/audit-logs/{id}/:
+    get:
+      operationId: api_events_audit_logs_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Audit Log.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLog'
+          description: ''
+  /api/events/categories/:
+    get:
+      operationId: api_events_categories_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEventCategoryList'
+          description: ''
+  /api/events/categories/{id}/:
+    get:
+      operationId: api_events_categories_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Category.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventCategory'
+          description: ''
+  /api/events/cb/:
+    post:
+      operationId: api_events_cb_create
+      description: |-
+        M-Pesa Daraja STK Push callback endpoint.
+        Processes payment callbacks and routes based on payment_purpose.
+
+        IMPORTANT: This endpoint always responds with HTTP 200 and the
+        Safaricom-expected acknowledgement body. Returning any non-200 status makes
+        Safaricom retry the same callback repeatedly, which would double-count votes
+        or resend tickets. All errors are logged instead of surfaced as 500s.
+      tags:
+      - api
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/checkin/events/:
+    get:
+      operationId: api_events_checkin_events_retrieve
+      description: |-
+        Public list of events that have check-in enabled (a PIN set).
+
+        Only exposes non-sensitive fields so staff can pick an event to check in.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/checkin/list/:
+    post:
+      operationId: api_events_checkin_list_create
+      description: |-
+        PIN-protected list of tickets for one event's gate check-in page.
+
+        Body: { event (id), pin, search? }
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/checkin/toggle/:
+    post:
+      operationId: api_events_checkin_toggle_create
+      description: |-
+        PIN-protected check-in toggle. Marks a ticket used/unused (never deletes).
+
+        Body: { event (id), pin, ticket_id (or ticket_code), is_used (bool) }
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/contestants/:
+    get:
+      operationId: api_events_contestants_list
+      parameters:
+      - in: query
+        name: contestant_category
+        schema:
+          type: integer
+      - in: query
+        name: event
+        schema:
+          type: integer
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedContestantList'
+          description: ''
+  /api/events/contestants/{id}/:
+    get:
+      operationId: api_events_contestants_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Contestant.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContestantPublic'
+          description: ''
+  /api/events/contestants/{id}/public_page/:
+    get:
+      operationId: api_events_contestants_public_page_retrieve
+      description: Get public contestant data for shareable pages
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Contestant.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contestant'
+          description: ''
+  /api/events/contributions/{id}/:
+    get:
+      operationId: api_events_contributions_retrieve
+      description: 'Public: poll the status of a contribution by id (for the STK flow).'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/contributions/initiate/:
+    post:
+      operationId: api_events_contributions_initiate_create
+      description: |-
+        Initiate an M-Pesa STK Push for a public contribution/donation.
+
+        Contributions are tracked in the separate Contribution model (kept apart
+        from tickets/votes so vote counts are never affected). Confirmation happens
+        asynchronously via the shared mpesa-callback endpoint.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/events/:
+    get:
+      operationId: api_events_events_list
+      parameters:
+      - in: query
+        name: city
+        schema:
+          type: string
+      - in: query
+        name: country
+        schema:
+          type: string
+      - in: query
+        name: event_status
+        schema:
+          type: string
+          enum:
+          - active
+          - archived
+          - draft
+          - voting_closed
+          - voting_open
+        description: |-
+          * `draft` - Draft
+          * `active` - Active
+          * `voting_open` - Voting Open
+          * `voting_closed` - Voting Closed
+          * `archived` - Archived
+      - in: query
+        name: event_type
+        schema:
+          type: string
+          enum:
+          - appearance
+          - award
+          - charity
+          - conference
+          - cultural_event
+          - media
+          - other
+          - workshop
+        description: |-
+          * `appearance` - Public Appearance
+          * `cultural_event` - Cultural Event
+          * `charity` - Charity Event
+          * `media` - Media Appearance
+          * `award` - Award Ceremony
+          * `conference` - Conference
+          * `workshop` - Workshop
+          * `other` - Other
+      - in: query
+        name: featured
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: voting_enabled
+        schema:
+          type: boolean
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEventListList'
+          description: ''
+  /api/events/events/{id}/:
+    get:
+      operationId: api_events_events_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Event.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+  /api/events/events/{id}/initiate_ticket_payment/:
+    post:
+      operationId: api_events_events_initiate_ticket_payment_create
+      description: |-
+        Initiate M-Pesa Daraja STK Push for ticket purchase.
+        Creates a pending Payment record and triggers STK Push to user's phone.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Event.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Event'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Event'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+  /api/events/events/{id}/initiate_vote_payment/:
+    post:
+      operationId: api_events_events_initiate_vote_payment_create
+      description: |-
+        Initiate M-Pesa Daraja STK Push for voting.
+        Creates a pending Payment record and triggers STK Push to user's phone.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Event.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Event'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Event'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+  /api/events/events/{id}/live_results/:
+    get:
+      operationId: api_events_events_live_results_retrieve
+      description: Get live voting results based on event's result_visibility setting.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Event.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+  /api/events/events/{id}/register_ticket/:
+    post:
+      operationId: api_events_events_register_ticket_create
+      description: Register a free ticket for an event. Only works for free events.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Event.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Event'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Event'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+  /api/events/events/{id}/verify_payment/:
+    post:
+      operationId: api_events_events_verify_payment_create
+      description: Admin verifies a payment, triggers ticket/vote processing.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Event.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Event'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Event'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+  /api/events/events/{id}/vote_verify/:
+    get:
+      operationId: api_events_events_vote_verify_retrieve
+      description: Verify votes by phone number for this event.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Event.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+  /api/events/events/featured/:
+    get:
+      operationId: api_events_events_featured_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+  /api/events/events/past/:
+    get:
+      operationId: api_events_events_past_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+  /api/events/events/upcoming/:
+    get:
+      operationId: api_events_events_upcoming_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+  /api/events/events/voting_events/:
+    get:
+      operationId: api_events_events_voting_events_retrieve
+      description: Get events that have voting enabled and are in voting_open status
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+  /api/events/finance/report/:
+    post:
+      operationId: api_events_finance_report_create
+      description: |-
+        PIN-protected revenue report across voting, ticketing and contributions.
+
+        Body: { pin, date_from?, date_to?, source?, event?, phone?, mpesa_code?, status? }
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/finance/statement-pdf/:
+    post:
+      operationId: api_events_finance_statement_pdf_create
+      description: |-
+        PIN-protected PDF statement of the filtered revenue report.
+
+        Body: same filters as finance_report.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/mpesa-callback/:
+    post:
+      operationId: api_events_mpesa_callback_create
+      description: |-
+        M-Pesa Daraja STK Push callback endpoint.
+        Processes payment callbacks and routes based on payment_purpose.
+
+        IMPORTANT: This endpoint always responds with HTTP 200 and the
+        Safaricom-expected acknowledgement body. Returning any non-200 status makes
+        Safaricom retry the same callback repeatedly, which would double-count votes
+        or resend tickets. All errors are logged instead of surfaced as 500s.
+      tags:
+      - api
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/payments/:
+    get:
+      operationId: api_events_payments_list
+      parameters:
+      - in: query
+        name: event
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: payment_purpose
+        schema:
+          type: string
+          enum:
+          - donation
+          - ticket
+          - vote
+        description: |-
+          Purpose of this payment: ticket, vote, or donation
+
+          * `ticket` - Ticket
+          * `vote` - Vote
+          * `donation` - Donation
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - cancelled
+          - failed
+          - pending
+          - reversed
+          - successful
+        description: |-
+          * `pending` - Pending
+          * `successful` - Successful
+          * `failed` - Failed
+          * `cancelled` - Cancelled
+          * `reversed` - Reversed
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPaymentList'
+          description: ''
+    post:
+      operationId: api_events_payments_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentCreate'
+          description: ''
+  /api/events/payments/{id}/:
+    get:
+      operationId: api_events_payments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Payment.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+    put:
+      operationId: api_events_payments_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Payment.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Payment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Payment'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+    patch:
+      operationId: api_events_payments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Payment.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPayment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPayment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPayment'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+    delete:
+      operationId: api_events_payments_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Payment.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/events/pesapal-ipn/:
+    get:
+      operationId: api_events_pesapal_ipn_retrieve
+      description: |-
+        PesaPal IPN (Instant Payment Notification) endpoint.
+        PesaPal sends a GET request with OrderTrackingId and OrderMerchantReference
+        whenever the payment state changes.
+
+        Handles both Contribution and Payment (vote/ticket) records.
+        The OrderMerchantReference encodes the type:
+          MCK-VOTE-{id}    → Payment with payment_type='vote'
+          MCK-TICKET-{id}  → Payment with payment_type='ticket'
+          MCK-CONTRIB-*    → Contribution
+      tags:
+      - api
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/pesapal-redirect/:
+    get:
+      operationId: api_events_pesapal_redirect_retrieve
+      description: |-
+        PesaPal redirects the user's browser here after they complete (or abandon) payment.
+        Verifies the status and redirects to the frontend with a status param.
+
+        Routes:
+          Contribution → /contribute?payment=success|failed
+          Payment (vote) → /voting?payment=success|failed
+          Payment (ticket) → /events/{event_id}/checkout/success?payment=success|failed
+      tags:
+      - api
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/ticket-categories/:
+    get:
+      operationId: api_events_ticket_categories_list
+      parameters:
+      - in: query
+        name: event
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTicketCategoryList'
+          description: ''
+  /api/events/ticket-categories/{id}/:
+    get:
+      operationId: api_events_ticket_categories_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Ticket Category.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketCategory'
+          description: ''
+  /api/events/ticket-lookup/:
+    get:
+      operationId: api_events_ticket_lookup_retrieve
+      description: |-
+        Public endpoint: look up tickets by phone number (payment_purpose='ticket' only).
+        Also supports looking up a single ticket by ticket_code.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/ticket-pdf/:
+    get:
+      operationId: api_events_ticket_pdf_retrieve
+      description: |-
+        Public endpoint: download a ticket as a PDF, looked up by ticket_code.
+
+        A reliable fallback so an attendee can always get their ticket even if the
+        web ticket page fails to load — the browser downloads the PDF directly.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/tickets/:
+    get:
+      operationId: api_events_tickets_list
+      parameters:
+      - in: query
+        name: event
+        schema:
+          type: integer
+      - in: query
+        name: is_used
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: payment
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: ticket_category
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTicketList'
+          description: ''
+  /api/events/tickets/{id}/:
+    get:
+      operationId: api_events_tickets_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Ticket.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDetail'
+          description: ''
+  /api/events/tickets/lookup/:
+    get:
+      operationId: api_events_tickets_lookup_retrieve
+      description: Look up a ticket by ticket_code via query param.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+          description: ''
+  /api/events/verify-votes/:
+    get:
+      operationId: api_events_verify_votes_retrieve
+      description: |-
+        Public endpoint: verify all votes for a phone number across all events.
+        Filters by payment_purpose='vote' to exclude ticket purchases.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/events/vote-transactions/:
+    get:
+      operationId: api_events_vote_transactions_list
+      parameters:
+      - in: query
+        name: contestant
+        schema:
+          type: integer
+      - in: query
+        name: event
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - failed
+          - pending
+          - reversed
+          - successful
+        description: |-
+          * `pending` - Pending
+          * `successful` - Successful
+          * `failed` - Failed
+          * `reversed` - Reversed
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVoteTransactionList'
+          description: ''
+  /api/events/vote-transactions/{id}/:
+    get:
+      operationId: api_events_vote_transactions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Events - Vote Transaction.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoteTransaction'
+          description: ''
+  /api/gallery/collections/:
+    get:
+      operationId: api_gallery_collections_list
+      parameters:
+      - in: query
+        name: featured
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPhotoCollectionList'
+          description: ''
+  /api/gallery/collections/{id}/:
+    get:
+      operationId: api_gallery_collections_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Gallery - Photo Collection.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotoCollection'
+          description: ''
+  /api/gallery/photos/:
+    get:
+      operationId: api_gallery_photos_list
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+          enum:
+          - awards
+          - behind_scenes
+          - community_work
+          - cultural_event
+          - fashion
+          - official_photoshoot
+          - travel
+        description: |-
+          * `official_photoshoot` - Official Photoshoot
+          * `cultural_event` - Cultural Event
+          * `behind_scenes` - Behind the Scenes
+          * `community_work` - Community Work
+          * `travel` - Travel
+          * `awards` - Awards
+          * `fashion` - Fashion
+      - in: query
+        name: collection
+        schema:
+          type: integer
+      - in: query
+        name: featured
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPhotoList'
+          description: ''
+  /api/gallery/photos/{id}/:
+    get:
+      operationId: api_gallery_photos_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Gallery - Photo.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+          description: ''
+  /api/gallery/settings/:
+    get:
+      operationId: api_gallery_settings_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGallerySettingsList'
+          description: ''
+  /api/gallery/settings/{id}/:
+    get:
+      operationId: api_gallery_settings_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Gallery Settings.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GallerySettings'
+          description: ''
+  /api/gallery/videos/:
+    get:
+      operationId: api_gallery_videos_list
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+          enum:
+          - behind_scenes
+          - community_work
+          - cultural_event
+          - interview
+          - official_photoshoot
+          - performance
+        description: |-
+          * `official_photoshoot` - Official Photoshoot
+          * `cultural_event` - Cultural Event
+          * `behind_scenes` - Behind the Scenes
+          * `community_work` - Community Work
+          * `interview` - Interview
+          * `performance` - Performance
+      - in: query
+        name: collection
+        schema:
+          type: integer
+      - in: query
+        name: featured
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVideoList'
+          description: ''
+  /api/gallery/videos/{id}/:
+    get:
+      operationId: api_gallery_videos_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Gallery - Video.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Video'
+          description: ''
+  /api/health/:
+    get:
+      operationId: api_health_retrieve
+      description: Public health check endpoint - returns basic system status
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/achievements/:
+    get:
+      operationId: api_main_achievements_list
+      parameters:
+      - in: query
+        name: achievement_type
+        schema:
+          type: string
+          enum:
+          - arts
+          - innovation
+          - sports
+          - technology
+          - tourism
+        description: |-
+          * `sports` - Sports
+          * `technology` - Technology
+          * `arts` - Arts
+          * `tourism` - Tourism
+          * `innovation` - Innovation
+      - in: query
+        name: featured
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: year
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAchievementList'
+          description: ''
+  /api/main/achievements/{id}/:
+    get:
+      operationId: api_main_achievements_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Kenya - Achievement.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Achievement'
+          description: ''
+  /api/main/ambassador/:
+    get:
+      operationId: api_main_ambassador_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAmbassadorList'
+          description: ''
+  /api/main/ambassador/{id}/:
+    get:
+      operationId: api_main_ambassador_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Ambassador.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ambassador'
+          description: ''
+  /api/main/communities/:
+    get:
+      operationId: api_main_communities_list
+      parameters:
+      - in: query
+        name: featured
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: region
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCulturalCommunityList'
+          description: ''
+  /api/main/communities/{id}/:
+    get:
+      operationId: api_main_communities_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Kenya - Community.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CulturalCommunity'
+          description: ''
+  /api/main/contact/:
+    post:
+      operationId: api_main_contact_create
+      description: Receive a contact form submission and email it to the admin.
+      tags:
+      - api
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/discover/:
+    get:
+      operationId: api_main_discover_retrieve
+      description: |-
+        Consolidated endpoint for the unified Kenya page.
+        Optional query params:
+        - featured_only=true|false
+        - regions_limit, communities_limit, heritage_limit, achievements_limit
+        - include_gallery=true|false  (include gallery photos per item)
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/email-check/:
+    get:
+      operationId: api_main_email_check_retrieve
+      description: Check Resend API connection status
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/heritage/:
+    get:
+      operationId: api_main_heritage_list
+      parameters:
+      - in: query
+        name: featured
+        schema:
+          type: boolean
+      - in: query
+        name: heritage_type
+        schema:
+          type: string
+          enum:
+          - art
+          - ceremony
+          - craft
+          - dance
+          - language
+          - music
+        description: |-
+          * `language` - Language
+          * `ceremony` - Ceremony
+          * `dance` - Dance
+          * `music` - Music
+          * `art` - Art
+          * `craft` - Craft
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCulturalHeritageList'
+          description: ''
+  /api/main/heritage/{id}/:
+    get:
+      operationId: api_main_heritage_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Kenya - Heritage.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CulturalHeritage'
+          description: ''
+  /api/main/partners/:
+    get:
+      operationId: api_main_partners_list
+      parameters:
+      - in: query
+        name: featured
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: partner_type
+        schema:
+          type: string
+          enum:
+          - partner
+          - sponsor
+          - supporter
+        description: |-
+          * `sponsor` - Sponsor
+          * `partner` - Partner
+          * `supporter` - Supporter
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPartnerList'
+          description: ''
+  /api/main/partners/{id}/:
+    get:
+      operationId: api_main_partners_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Partnership - Partner/Sponsor.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partner'
+          description: ''
+  /api/main/regions/:
+    get:
+      operationId: api_main_regions_list
+      parameters:
+      - in: query
+        name: featured
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedKenyaRegionList'
+          description: ''
+  /api/main/regions/{id}/:
+    get:
+      operationId: api_main_regions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Kenya - Region.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KenyaRegion'
+          description: ''
+  /api/main/settings/:
+    get:
+      operationId: api_main_settings_retrieve
+      description: Return hero images for every navbar tab.
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/about/:
+    get:
+      operationId: api_main_settings_about_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/ambassador/:
+    get:
+      operationId: api_main_settings_ambassador_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/contact/:
+    get:
+      operationId: api_main_settings_contact_retrieve
+      description: API endpoint for contact page settings
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/contribute/:
+    get:
+      operationId: api_main_settings_contribute_retrieve
+      description: API endpoint for Contribute page settings
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/events/:
+    get:
+      operationId: api_main_settings_events_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/faq/:
+    get:
+      operationId: api_main_settings_faq_retrieve
+      description: API endpoint for FAQ page settings
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/gallery/:
+    get:
+      operationId: api_main_settings_gallery_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/home/:
+    get:
+      operationId: api_main_settings_home_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/kenya/:
+    get:
+      operationId: api_main_settings_kenya_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/partnership/:
+    get:
+      operationId: api_main_settings_partnership_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/privacy/:
+    get:
+      operationId: api_main_settings_privacy_retrieve
+      description: API endpoint for Privacy page settings
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/terms/:
+    get:
+      operationId: api_main_settings_terms_retrieve
+      description: API endpoint for Terms page settings
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/settings/voting/:
+    get:
+      operationId: api_main_settings_voting_retrieve
+      description: API endpoint for voting page settings
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/main/team/:
+    get:
+      operationId: api_main_team_list
+      parameters:
+      - in: query
+        name: featured
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: team_type
+        schema:
+          type: string
+          enum:
+          - committee
+          - leadership
+        description: |-
+          * `leadership` - Leadership
+          * `committee` - Organizing Committee
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTeamMemberList'
+          description: ''
+  /api/main/team/{id}/:
+    get:
+      operationId: api_main_team_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this About - Team Member.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMember'
+          description: ''
+  /api/main/test-pdf/:
+    get:
+      operationId: api_main_test_pdf_retrieve
+      description: |-
+        Generate a PDF with random statements for testing content
+
+        Query params:
+        - type: home, ambassador, events, partnership, about, all (default: all)
+        - pages: number of pages for multi-page PDF (default: 5)
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /health/:
+    get:
+      operationId: health_retrieve
+      description: Public health check endpoint - returns basic system status
+      tags:
+      - health
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    Achievement:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image_url:
+          type: string
+          readOnly: true
+        gallery_photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/KenyaGalleryPhoto'
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        achievement_type:
+          $ref: '#/components/schemas/AchievementTypeEnum'
+        description:
+          type: string
+        image:
+          type: string
+          nullable: true
+        year:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        featured:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - achievement_type
+      - created_at
+      - description
+      - gallery_photos
+      - id
+      - image_url
+      - title
+      - year
+    AchievementTypeEnum:
+      enum:
+      - sports
+      - technology
+      - arts
+      - tourism
+      - innovation
+      type: string
+      description: |-
+        * `sports` - Sports
+        * `technology` - Technology
+        * `arts` - Arts
+        * `tourism` - Tourism
+        * `innovation` - Innovation
+    ActionEnum:
+      enum:
+      - vote_reversal
+      - contestant_edit
+      - event_setting_change
+      - payment_adjustment
+      - payment_verified
+      - ticket_issued
+      - admin_action
+      type: string
+      description: |-
+        * `vote_reversal` - Vote Reversal
+        * `contestant_edit` - Contestant Edit
+        * `event_setting_change` - Event Setting Change
+        * `payment_adjustment` - Payment Adjustment
+        * `payment_verified` - Payment Verified
+        * `ticket_issued` - Ticket Issued
+        * `admin_action` - Admin Action
+    Ambassador:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        profile_image_url:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        title:
+          type: string
+          maxLength: 200
+        bio:
+          type: string
+        mission_statement:
+          type: string
+        profile_image:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - bio
+      - created_at
+      - id
+      - mission_statement
+      - name
+      - profile_image_url
+      - title
+      - updated_at
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        action:
+          allOf:
+          - $ref: '#/components/schemas/ActionEnum'
+          readOnly: true
+        actor:
+          type: string
+          readOnly: true
+          description: Admin username or 'system'
+        details:
+          type: string
+          readOnly: true
+          description: JSON-serializable description of the action
+        event:
+          type: integer
+          readOnly: true
+          nullable: true
+        event_title:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - action
+      - actor
+      - created_at
+      - details
+      - event
+      - event_title
+      - id
+    Contestant:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        event:
+          type: integer
+        event_title:
+          type: string
+          readOnly: true
+        event_slug:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        bio:
+          type: string
+        beliefs:
+          type: string
+          description: Personal beliefs or values
+        achievements:
+          type: string
+          description: Previous awards or accomplishments
+        mission_statement:
+          type: string
+          description: What they hope to achieve as Miss Culture
+        contestant_category:
+          type: integer
+          nullable: true
+        contestant_category_name:
+          type: string
+          readOnly: true
+        photo:
+          type: string
+          nullable: true
+        photo_url:
+          type: string
+          readOnly: true
+        contestant_number:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          description: Display number shown to voters
+        slug:
+          type: string
+          description: URL-friendly identifier for public page
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        is_active:
+          type: boolean
+        vote_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - contestant_category_name
+      - contestant_number
+      - created_at
+      - event
+      - event_slug
+      - event_title
+      - id
+      - name
+      - photo_url
+      - slug
+      - updated_at
+      - vote_count
+    ContestantPublic:
+      type: object
+      description: Public-facing contestant data for shareable pages
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        bio:
+          type: string
+        beliefs:
+          type: string
+          description: Personal beliefs or values
+        achievements:
+          type: string
+          description: Previous awards or accomplishments
+        mission_statement:
+          type: string
+          description: What they hope to achieve as Miss Culture
+        photo_url:
+          type: string
+          readOnly: true
+        contestant_number:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          description: Display number shown to voters
+        slug:
+          type: string
+          description: URL-friendly identifier for public page
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        vote_count:
+          type: string
+          readOnly: true
+        event_title:
+          type: string
+          readOnly: true
+        event_slug:
+          type: string
+          readOnly: true
+        contestant_category:
+          type: integer
+          nullable: true
+        contestant_category_name:
+          type: string
+          readOnly: true
+      required:
+      - contestant_category_name
+      - contestant_number
+      - event_slug
+      - event_title
+      - id
+      - name
+      - photo_url
+      - slug
+      - vote_count
+    CulturalCommunity:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image_url:
+          type: string
+          readOnly: true
+        gallery_photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/KenyaGalleryPhoto'
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        region:
+          type: string
+          maxLength: 100
+        image:
+          type: string
+          nullable: true
+        featured:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - description
+      - gallery_photos
+      - id
+      - image_url
+      - name
+      - region
+    CulturalHeritage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image_url:
+          type: string
+          readOnly: true
+        audio_clip_url:
+          type: string
+          readOnly: true
+        video_clip_url:
+          type: string
+          readOnly: true
+        gallery_photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/KenyaGalleryPhoto'
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        heritage_type:
+          $ref: '#/components/schemas/HeritageTypeEnum'
+        description:
+          type: string
+        image:
+          type: string
+          nullable: true
+        audio_clip:
+          type: string
+          nullable: true
+        video_clip:
+          type: string
+          nullable: true
+        video_url:
+          type: string
+          format: uri
+          description: External video link (YouTube, etc.) — overrides uploaded video
+            clip
+          maxLength: 200
+        featured:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - audio_clip_url
+      - created_at
+      - description
+      - gallery_photos
+      - heritage_type
+      - id
+      - image_url
+      - title
+      - video_clip_url
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        featured_image_url:
+          type: string
+          readOnly: true
+        contestant_count:
+          type: string
+          readOnly: true
+        total_votes:
+          type: string
+          readOnly: true
+        is_voting_active:
+          type: string
+          readOnly: true
+        ticket_categories:
+          type: string
+          readOnly: true
+        guest_speakers:
+          type: string
+          readOnly: true
+        contestant_categories:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+        event_type:
+          $ref: '#/components/schemas/EventTypeEnum'
+        event_status:
+          $ref: '#/components/schemas/EventStatusEnum'
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+          nullable: true
+        is_all_day:
+          type: boolean
+        venue_name:
+          type: string
+          maxLength: 200
+        city:
+          type: string
+          maxLength: 100
+        country:
+          type: string
+          maxLength: 100
+        latitude:
+          type: number
+          format: double
+          nullable: true
+        longitude:
+          type: number
+          format: double
+          nullable: true
+        featured_image:
+          type: string
+          nullable: true
+        capacity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        registration_required:
+          type: boolean
+        ticket_url:
+          type: string
+          format: uri
+          description: External ticketing URL (e.g. Eventbrite). If set, users will
+            be redirected here to buy tickets.
+          maxLength: 200
+        registration_url:
+          type: string
+          format: uri
+          description: External registration URL. If set, users will be redirected
+            here to register.
+          maxLength: 200
+        voting_enabled:
+          type: boolean
+          description: Enable voting for this event
+        vote_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Price per vote in KES (e.g. 10.00)
+        voting_start:
+          type: string
+          format: date-time
+          nullable: true
+          description: When voting opens
+        voting_end:
+          type: string
+          format: date-time
+          nullable: true
+          description: When voting closes
+        result_visibility:
+          allOf:
+          - $ref: '#/components/schemas/ResultVisibilityEnum'
+          description: |-
+            What the public sees for vote results
+
+            * `full_live` - Full Live Totals
+            * `rankings_only` - Rankings Only
+            * `hidden` - Hidden Totals
+            * `no_public` - No Public Updates
+        ticket_prefix:
+          type: string
+          description: Auto-derived from event title. 2-3 char prefix for ticket codes
+            (e.g. FOS)
+          maxLength: 5
+        checkin_pin:
+          type: string
+          description: PIN staff enter on the /checkin page to view and check in this
+            event's tickets. Leave blank to disable check-in for this event.
+          maxLength: 20
+        payment_method:
+          $ref: '#/components/schemas/PaymentMethodEnum'
+        till_number:
+          type: string
+          maxLength: 20
+        account_name:
+          type: string
+          maxLength: 200
+        featured:
+          type: boolean
+        published:
+          type: boolean
+        meta_description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        gallery:
+          type: array
+          items:
+            type: integer
+      required:
+      - city
+      - contestant_categories
+      - contestant_count
+      - created_at
+      - description
+      - event_type
+      - featured_image_url
+      - guest_speakers
+      - id
+      - is_voting_active
+      - slug
+      - start_date
+      - ticket_categories
+      - title
+      - total_votes
+      - updated_at
+      - venue_name
+    EventCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        color:
+          type: string
+          maxLength: 7
+        icon:
+          type: string
+          maxLength: 50
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+    EventList:
+      type: object
+      description: Lighter serializer for list views
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        event_type:
+          $ref: '#/components/schemas/EventTypeEnum'
+        event_status:
+          $ref: '#/components/schemas/EventStatusEnum'
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+          nullable: true
+        venue_name:
+          type: string
+          maxLength: 200
+        city:
+          type: string
+          maxLength: 100
+        country:
+          type: string
+          maxLength: 100
+        featured_image_url:
+          type: string
+          readOnly: true
+        featured:
+          type: boolean
+        published:
+          type: boolean
+        voting_enabled:
+          type: boolean
+          description: Enable voting for this event
+        vote_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Price per vote in KES (e.g. 10.00)
+        is_voting_active:
+          type: string
+          readOnly: true
+        result_visibility:
+          allOf:
+          - $ref: '#/components/schemas/ResultVisibilityEnum'
+          description: |-
+            What the public sees for vote results
+
+            * `full_live` - Full Live Totals
+            * `rankings_only` - Rankings Only
+            * `hidden` - Hidden Totals
+            * `no_public` - No Public Updates
+        contestant_count:
+          type: string
+          readOnly: true
+        payment_method:
+          $ref: '#/components/schemas/PaymentMethodEnum'
+        till_number:
+          type: string
+          maxLength: 20
+        account_name:
+          type: string
+          maxLength: 200
+      required:
+      - city
+      - contestant_count
+      - event_type
+      - featured_image_url
+      - id
+      - is_voting_active
+      - slug
+      - start_date
+      - title
+      - venue_name
+    EventStatusEnum:
+      enum:
+      - draft
+      - active
+      - voting_open
+      - voting_closed
+      - archived
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `active` - Active
+        * `voting_open` - Voting Open
+        * `voting_closed` - Voting Closed
+        * `archived` - Archived
+    EventTypeEnum:
+      enum:
+      - appearance
+      - cultural_event
+      - charity
+      - media
+      - award
+      - conference
+      - workshop
+      - other
+      type: string
+      description: |-
+        * `appearance` - Public Appearance
+        * `cultural_event` - Cultural Event
+        * `charity` - Charity Event
+        * `media` - Media Appearance
+        * `award` - Award Ceremony
+        * `conference` - Conference
+        * `workshop` - Workshop
+        * `other` - Other
+    GallerySettings:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        hero_image_url:
+          type: string
+          readOnly: true
+        site_title:
+          type: string
+          maxLength: 200
+        site_description:
+          type: string
+        hero_image:
+          type: string
+          nullable: true
+        hero_title:
+          type: string
+          maxLength: 200
+        hero_subtitle:
+          type: string
+        items_per_page:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        enable_lightbox:
+          type: boolean
+        enable_social_sharing:
+          type: boolean
+        enable_download:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - hero_image_url
+      - id
+      - updated_at
+    HeritageTypeEnum:
+      enum:
+      - language
+      - ceremony
+      - dance
+      - music
+      - art
+      - craft
+      type: string
+      description: |-
+        * `language` - Language
+        * `ceremony` - Ceremony
+        * `dance` - Dance
+        * `music` - Music
+        * `art` - Art
+        * `craft` - Craft
+    KenyaGalleryPhoto:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image_url:
+          type: string
+          readOnly: true
+        caption:
+          type: string
+          maxLength: 200
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+      required:
+      - id
+      - image_url
+    KenyaRegion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image_url:
+          type: string
+          readOnly: true
+        gallery_photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/KenyaGalleryPhoto'
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        image:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          format: double
+          nullable: true
+        longitude:
+          type: number
+          format: double
+          nullable: true
+        featured:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - description
+      - gallery_photos
+      - id
+      - image_url
+      - name
+    PaginatedAchievementList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Achievement'
+    PaginatedAmbassadorList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ambassador'
+    PaginatedAuditLogList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+    PaginatedContestantList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contestant'
+    PaginatedCulturalCommunityList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CulturalCommunity'
+    PaginatedCulturalHeritageList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CulturalHeritage'
+    PaginatedEventCategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventCategory'
+    PaginatedEventListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventList'
+    PaginatedGallerySettingsList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/GallerySettings'
+    PaginatedKenyaRegionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/KenyaRegion'
+    PaginatedPartnerList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Partner'
+    PaginatedPaymentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+    PaginatedPhotoCollectionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhotoCollection'
+    PaginatedPhotoList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Photo'
+    PaginatedTeamMemberList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMember'
+    PaginatedTicketCategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TicketCategory'
+    PaginatedTicketList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ticket'
+    PaginatedVideoList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Video'
+    PaginatedVoteTransactionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/VoteTransaction'
+    Partner:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        logo_url:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        logo:
+          type: string
+          nullable: true
+        website_url:
+          type: string
+          format: uri
+          maxLength: 200
+        description:
+          type: string
+        partner_type:
+          $ref: '#/components/schemas/PartnerTypeEnum'
+        featured:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - logo_url
+      - name
+      - partner_type
+    PartnerTypeEnum:
+      enum:
+      - sponsor
+      - partner
+      - supporter
+      type: string
+      description: |-
+        * `sponsor` - Sponsor
+        * `partner` - Partner
+        * `supporter` - Supporter
+    PatchedPayment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        event:
+          type: integer
+        event_title:
+          type: string
+          readOnly: true
+        contestant:
+          type: integer
+          nullable: true
+          description: Contestant being voted for (for vote payments)
+        contestant_name:
+          type: string
+          readOnly: true
+        ticket_category:
+          type: integer
+          nullable: true
+        ticket_category_name:
+          type: string
+          readOnly: true
+        ticket_quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        ticket_breakdown: {}
+        full_name:
+          type: string
+          maxLength: 200
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone_number:
+          type: string
+          maxLength: 20
+        mpesa_code:
+          type: string
+          nullable: true
+          description: M-Pesa transaction code (must be unique). Leave blank for pending
+            payments.
+          maxLength: 20
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        status:
+          $ref: '#/components/schemas/Status065Enum'
+        payment_purpose:
+          allOf:
+          - $ref: '#/components/schemas/PaymentPurposeEnum'
+          description: |-
+            Purpose of this payment: ticket, vote, or donation
+
+            * `ticket` - Ticket
+            * `vote` - Vote
+            * `donation` - Donation
+        checkout_request_id:
+          type: string
+          readOnly: true
+          description: Daraja CheckoutRequestID from STK Push
+        merchant_request_id:
+          type: string
+          readOnly: true
+          description: Daraja MerchantRequestID from STK Push
+        pesapal_tracking_id:
+          type: string
+          readOnly: true
+        pesapal_merchant_ref:
+          type: string
+          readOnly: true
+        verified_by:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: Admin who verified this payment
+        verified_by_name:
+          type: string
+          readOnly: true
+        verified_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        event:
+          type: integer
+        event_title:
+          type: string
+          readOnly: true
+        contestant:
+          type: integer
+          nullable: true
+          description: Contestant being voted for (for vote payments)
+        contestant_name:
+          type: string
+          readOnly: true
+        ticket_category:
+          type: integer
+          nullable: true
+        ticket_category_name:
+          type: string
+          readOnly: true
+        ticket_quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        ticket_breakdown: {}
+        full_name:
+          type: string
+          maxLength: 200
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone_number:
+          type: string
+          maxLength: 20
+        mpesa_code:
+          type: string
+          nullable: true
+          description: M-Pesa transaction code (must be unique). Leave blank for pending
+            payments.
+          maxLength: 20
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        status:
+          $ref: '#/components/schemas/Status065Enum'
+        payment_purpose:
+          allOf:
+          - $ref: '#/components/schemas/PaymentPurposeEnum'
+          description: |-
+            Purpose of this payment: ticket, vote, or donation
+
+            * `ticket` - Ticket
+            * `vote` - Vote
+            * `donation` - Donation
+        checkout_request_id:
+          type: string
+          readOnly: true
+          description: Daraja CheckoutRequestID from STK Push
+        merchant_request_id:
+          type: string
+          readOnly: true
+          description: Daraja MerchantRequestID from STK Push
+        pesapal_tracking_id:
+          type: string
+          readOnly: true
+        pesapal_merchant_ref:
+          type: string
+          readOnly: true
+        verified_by:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: Admin who verified this payment
+        verified_by_name:
+          type: string
+          readOnly: true
+        verified_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount
+      - checkout_request_id
+      - contestant_name
+      - created_at
+      - event
+      - event_title
+      - id
+      - merchant_request_id
+      - payment_purpose
+      - pesapal_merchant_ref
+      - pesapal_tracking_id
+      - phone_number
+      - ticket_category_name
+      - updated_at
+      - verified_at
+      - verified_by
+      - verified_by_name
+    PaymentCreate:
+      type: object
+      description: Serializer for creating payments (admin manual verification)
+      properties:
+        event:
+          type: integer
+        contestant:
+          type: integer
+          nullable: true
+          description: Contestant being voted for (for vote payments)
+        ticket_category:
+          type: integer
+          nullable: true
+        ticket_quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        ticket_breakdown: {}
+        full_name:
+          type: string
+          maxLength: 200
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone_number:
+          type: string
+          maxLength: 20
+        mpesa_code:
+          type: string
+          nullable: true
+          description: M-Pesa transaction code (must be unique). Leave blank for pending
+            payments.
+          maxLength: 20
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        status:
+          $ref: '#/components/schemas/Status065Enum'
+        payment_purpose:
+          allOf:
+          - $ref: '#/components/schemas/PaymentPurposeEnum'
+          description: |-
+            Purpose of this payment: ticket, vote, or donation
+
+            * `ticket` - Ticket
+            * `vote` - Vote
+            * `donation` - Donation
+      required:
+      - amount
+      - event
+      - payment_purpose
+      - phone_number
+    PaymentMethodEnum:
+      enum:
+      - till_number
+      type: string
+      description: '* `till_number` - Till Number'
+    PaymentPurposeEnum:
+      enum:
+      - ticket
+      - vote
+      - donation
+      type: string
+      description: |-
+        * `ticket` - Ticket
+        * `vote` - Vote
+        * `donation` - Donation
+    Photo:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image_url:
+          type: string
+          readOnly: true
+        thumbnail_url:
+          type: string
+          readOnly: true
+        small_thumbnail_url:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        image:
+          type: string
+          nullable: true
+        thumbnail:
+          type: string
+          nullable: true
+        category:
+          $ref: '#/components/schemas/PhotoCategoryEnum'
+        photographer:
+          type: string
+          maxLength: 200
+        location:
+          type: string
+          maxLength: 200
+        date_taken:
+          type: string
+          format: date
+          nullable: true
+        featured:
+          type: boolean
+        published:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        collection:
+          type: integer
+          nullable: true
+      required:
+      - category
+      - created_at
+      - id
+      - image_url
+      - small_thumbnail_url
+      - thumbnail_url
+      - title
+      - updated_at
+    PhotoCategoryEnum:
+      enum:
+      - official_photoshoot
+      - cultural_event
+      - behind_scenes
+      - community_work
+      - travel
+      - awards
+      - fashion
+      type: string
+      description: |-
+        * `official_photoshoot` - Official Photoshoot
+        * `cultural_event` - Cultural Event
+        * `behind_scenes` - Behind the Scenes
+        * `community_work` - Community Work
+        * `travel` - Travel
+        * `awards` - Awards
+        * `fashion` - Fashion
+    PhotoCollection:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        cover_image_url:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        cover_image:
+          type: string
+          nullable: true
+        featured:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - cover_image_url
+      - created_at
+      - id
+      - name
+      - updated_at
+    ResultVisibilityEnum:
+      enum:
+      - full_live
+      - rankings_only
+      - hidden
+      - no_public
+      type: string
+      description: |-
+        * `full_live` - Full Live Totals
+        * `rankings_only` - Rankings Only
+        * `hidden` - Hidden Totals
+        * `no_public` - No Public Updates
+    Status065Enum:
+      enum:
+      - pending
+      - successful
+      - failed
+      - cancelled
+      - reversed
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `successful` - Successful
+        * `failed` - Failed
+        * `cancelled` - Cancelled
+        * `reversed` - Reversed
+    TeamMember:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image_url:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        title:
+          type: string
+          description: Role or title (e.g. Miss Culture Global Kenya, Director of
+            Operations)
+          maxLength: 200
+        role:
+          type: string
+          description: Committee role (only for committee members)
+          maxLength: 200
+        bio:
+          type: string
+        image:
+          type: string
+          nullable: true
+        team_type:
+          $ref: '#/components/schemas/TeamTypeEnum'
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          description: Display order (lower = shown first)
+        featured:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - image_url
+      - name
+      - updated_at
+    TeamTypeEnum:
+      enum:
+      - leadership
+      - committee
+      type: string
+      description: |-
+        * `leadership` - Leadership
+        * `committee` - Organizing Committee
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        event:
+          type: integer
+        event_title:
+          type: string
+          readOnly: true
+        ticket_category:
+          type: integer
+          nullable: true
+        ticket_category_name:
+          type: string
+          readOnly: true
+        ticket_code:
+          type: string
+          readOnly: true
+          description: 'Format: PREFIX-RAND4#YY (e.g. FOS-WER3#26)'
+        full_name:
+          type: string
+          maxLength: 200
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        is_used:
+          type: boolean
+          description: Scanned at gate
+        issued_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - email
+      - event
+      - event_title
+      - full_name
+      - id
+      - issued_at
+      - ticket_category_name
+      - ticket_code
+    TicketCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        event_title:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          description: E.g. VIP, Single, Couple, At the Gate, Early Bird
+          maxLength: 100
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Price in KES. Use 0 for free tickets.
+        description:
+          type: string
+          description: Brief description of what this ticket includes
+          maxLength: 200
+        available:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          description: Number of tickets currently available
+        total:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          description: Total tickets in this category
+        is_active:
+          type: boolean
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          description: Display order (lower = shown first)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        event:
+          type: integer
+      required:
+      - created_at
+      - event
+      - event_title
+      - id
+      - name
+      - price
+      - updated_at
+    TicketDetail:
+      type: object
+      description: Detailed ticket for public verification
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        ticket_code:
+          type: string
+          description: 'Format: PREFIX-RAND4#YY (e.g. FOS-WER3#26)'
+          maxLength: 20
+        full_name:
+          type: string
+          maxLength: 200
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        event_title:
+          type: string
+          readOnly: true
+        event_slug:
+          type: string
+          readOnly: true
+        ticket_category_name:
+          type: string
+          readOnly: true
+        is_used:
+          type: boolean
+          description: Scanned at gate
+        issued_at:
+          type: string
+          format: date-time
+          readOnly: true
+        featured_image_url:
+          type: string
+          readOnly: true
+      required:
+      - email
+      - event_slug
+      - event_title
+      - featured_image_url
+      - full_name
+      - id
+      - issued_at
+      - ticket_category_name
+      - ticket_code
+    Video:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        video_url:
+          type: string
+          readOnly: true
+        video_file_url:
+          type: string
+          readOnly: true
+        thumbnail_url:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        video_file:
+          type: string
+          nullable: true
+        thumbnail:
+          type: string
+          nullable: true
+        category:
+          $ref: '#/components/schemas/VideoCategoryEnum'
+        duration:
+          type: string
+          nullable: true
+        featured:
+          type: boolean
+        published:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        collection:
+          type: integer
+          nullable: true
+      required:
+      - category
+      - created_at
+      - id
+      - thumbnail_url
+      - title
+      - updated_at
+      - video_file_url
+      - video_url
+    VideoCategoryEnum:
+      enum:
+      - official_photoshoot
+      - cultural_event
+      - behind_scenes
+      - community_work
+      - interview
+      - performance
+      type: string
+      description: |-
+        * `official_photoshoot` - Official Photoshoot
+        * `cultural_event` - Cultural Event
+        * `behind_scenes` - Behind the Scenes
+        * `community_work` - Community Work
+        * `interview` - Interview
+        * `performance` - Performance
+    VoteTransaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        event:
+          type: integer
+        event_title:
+          type: string
+          readOnly: true
+        contestant:
+          type: integer
+        contestant_name:
+          type: string
+          readOnly: true
+        vote_count:
+          type: integer
+          readOnly: true
+          description: 'Calculated: payment amount / vote_price (backend-only)'
+        phone_number:
+          type: string
+          maxLength: 20
+        mpesa_code:
+          type: string
+          description: M-Pesa transaction code
+          maxLength: 20
+        status:
+          $ref: '#/components/schemas/VoteTransactionStatusEnum'
+        ip_address:
+          type: string
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - contestant
+      - contestant_name
+      - created_at
+      - event
+      - event_title
+      - id
+      - ip_address
+      - phone_number
+      - updated_at
+      - vote_count
+    VoteTransactionStatusEnum:
+      enum:
+      - pending
+      - successful
+      - failed
+      - reversed
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `successful` - Successful
+        * `failed` - Failed
+        * `reversed` - Reversed
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

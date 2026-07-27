@@ -67,6 +67,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_filters',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
     'cloudinary_storage',
     'cloudinary',
     'missculture',
@@ -275,6 +277,20 @@ REST_FRAMEWORK = {
     },
     # Performance: Cache responses for 5 minutes
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 300,
+    # OpenAPI schema generation via drf-spectacular
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# API documentation (drf-spectacular + ReDoc) — admin-only
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Miss Culture Global Kenya API',
+    'DESCRIPTION': 'REST API for events, ticketing, voting, contributions, gallery and site content.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # Schema and ReDoc are restricted to staff users (log in via /admin/ first)
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.IsAdminUser'],
+    # Self-host ReDoc assets through WhiteNoise instead of a public CDN
+    'REDOC_DIST': 'SIDECAR',
 }
 
 # Database Query Optimization
