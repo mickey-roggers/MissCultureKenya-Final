@@ -242,6 +242,19 @@ def contact_message(request):
         <p style="color: #4b5563; line-height: 1.6;">
             In the meantime, feel free to follow us on social media for the latest updates.
         </p>
+        <table role="presentation" style="border-collapse: collapse; margin: 16px 0;">
+            <tr>
+                <td style="padding-right: 8px;">
+                    <a href="https://www.instagram.com/misscultureglobalkenya?igsh=MmpjY3Z5ODZ5NThx" style="display: inline-block; padding: 8px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 9999px; color: #15803d; font-size: 13px; font-weight: bold; text-decoration: none;">Instagram</a>
+                </td>
+                <td style="padding-right: 8px;">
+                    <a href="https://www.facebook.com/share/1E3tuDcxXT/" style="display: inline-block; padding: 8px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 9999px; color: #15803d; font-size: 13px; font-weight: bold; text-decoration: none;">Facebook</a>
+                </td>
+                <td>
+                    <a href="https://www.tiktok.com/@miss.culture.global.ke?_r=1&_t=ZS-95zsRay3Mii" style="display: inline-block; padding: 8px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 9999px; color: #15803d; font-size: 13px; font-weight: bold; text-decoration: none;">TikTok</a>
+                </td>
+            </tr>
+        </table>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
         <p style="font-size: 12px; color: #9ca3af;">
             Miss Culture Global Kenya<br>
@@ -252,6 +265,10 @@ def contact_message(request):
     auto_plain = (
         f"Thank You, {name}!\n\n"
         f"We have received your message and will get back to you within 24-48 hours.\n\n"
+        f"In the meantime, feel free to follow us on social media for the latest updates:\n"
+        f"Instagram: https://www.instagram.com/misscultureglobalkenya?igsh=MmpjY3Z5ODZ5NThx\n"
+        f"Facebook: https://www.facebook.com/share/1E3tuDcxXT/\n"
+        f"TikTok: https://www.tiktok.com/@miss.culture.global.ke?_r=1&_t=ZS-95zsRay3Mii\n\n"
         f"Miss Culture Global Kenya\ninfo@misscultureglobalkenya.com"
     )
     # Send auto-reply to sender via Resend
