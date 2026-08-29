@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Calendar, Clock, MapPin, Users, ExternalLink, Share2, ArrowLeft, Vote, Check, Ticket, AlertCircle, Loader2, Mail, Phone, User, CreditCard, Download } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, ExternalLink, Share2, ArrowLeft, Vote, Check, Ticket, AlertCircle, Loader2, Mail, Phone, User, CreditCard, Download, X, ChevronLeft } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -85,6 +85,7 @@ const EventDetailPage = () => {
   const [selectedContestantCategory, setSelectedContestantCategory] = useState<number | 'all' | 'uncategorized'>('all')
   const [contestantSearch, setContestantSearch] = useState('')
   const [activeContestantId, setActiveContestantId] = useState<number | null>(null)
+  const [detailsOpen, setDetailsOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -563,7 +564,7 @@ const EventDetailPage = () => {
                                     <button
                                       key={c.id}
                                       type="button"
-                                      onClick={() => setActiveContestantId(c.id)}
+                                      onClick={() => { setActiveContestantId(c.id); setDetailsOpen(true) }}
                                       className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
                                         activeContestantId === c.id ? 'bg-green-50' : 'bg-white'
                                       }`}
@@ -586,59 +587,90 @@ const EventDetailPage = () => {
                             </div>
                           </div>
 
-                          {/* Columns 2 & 3: Bio + Image (side by side on lg, stacked on mobile) */}
-                          <div className="lg:col-span-2 flex flex-col lg:flex-row">
-                            {/* Column 2: Bio / details */}
-                            <div className="lg:w-3/5 p-4 order-2 lg:order-1">
-                              {!activeContestant ? (
-                                <div className="border border-dashed border-gray-300 rounded-xl p-4 text-sm text-gray-600">
-                                  Select a contestant to read their bio.
-                                </div>
-                              ) : (
-                                <div className="space-y-3">
-                                  <p className="text-xs text-gray-500">Contestant</p>
-                                  <h4 className="text-lg font-bold text-gray-900">
-                                    #{activeContestant.contestant_number} · {activeContestant.name}
-                                  </h4>
-                                  <p className="text-sm text-gray-600">
-                                    {activeContestant.contestant_category_name ||
-                                      (activeContestant.contestant_category
-                                        ? contestantCategoriesById.get(activeContestant.contestant_category)?.name
-                                        : null) ||
-                                      'Uncategorized'}
-                                  </p>
-                                  {activeContestant.bio ? (
-                                    <p className="text-sm text-gray-700 leading-relaxed mt-3 whitespace-pre-line">
-                                      {activeContestant.bio}
-                                    </p>
-                                  ) : (
-                                    <p className="text-sm text-gray-500 mt-3">Bio not provided yet.</p>
-                                  )}
-                                </div>
-                              )}
+                          {/* Columns 2 & 3: Bio + Image — inline on desktop, slide-over from right on mobile */}
+                          {/* Mobile backdrop */}
+                          {detailsOpen && (
+                            <div
+                              className="fixed inset-0 z-[60] bg-black/40 lg:hidden"
+                              onClick={() => setDetailsOpen(false)}
+                              aria-hidden="true"
+                            />
+                          )}
+                          <div
+                            className={`lg:col-span-2 flex flex-col lg:flex-row lg:static fixed inset-y-0 right-0 z-[61] w-full max-w-md bg-white lg:bg-transparent lg:max-w-none lg:z-auto shadow-2xl lg:shadow-none transition-transform duration-300 ease-out ${detailsOpen ? 'translate-x-0' : 'translate-x-full'} lg:translate-x-0`}
+                          >
+                            {/* Mobile: slide-over header with Back */}
+                            <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-gray-200 flex-shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => setDetailsOpen(false)}
+                                className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-700 hover:text-green-800"
+                              >
+                                <ChevronLeft className="w-4 h-4" /> Back to list
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDetailsOpen(false)}
+                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500"
+                                aria-label="Close"
+                              >
+                                <X className="w-5 h-5" />
+                              </button>
                             </div>
 
-                            {/* Column 3: Image */}
-                            <div className="lg:w-2/5 p-4 order-1 lg:order-2 border-t lg:border-t-0 lg:border-l border-gray-200">
-                              {!activeContestant ? (
-                                <div className="border border-dashed border-gray-300 rounded-xl p-4 text-sm text-gray-600">
-                                  Photo appears here.
-                                </div>
-                              ) : (
-                                <div className="w-full h-56 sm:h-64 lg:h-full min-h-[14rem] rounded-xl overflow-hidden bg-gray-100 relative">
-                                  {activeContestant.photo_url ? (
-                                    <img
-                                      src={activeContestant.photo_url}
-                                      alt={activeContestant.name}
-                                      className="w-full h-full object-cover object-top"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100">
-                                      <span className="text-5xl font-bold text-green-200">#{activeContestant.contestant_number}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+                            <div className="flex-1 overflow-y-auto lg:overflow-visible flex flex-col lg:flex-row">
+                              {/* Column 2: Bio / details */}
+                              <div className="lg:w-3/5 p-4">
+                                {!activeContestant ? (
+                                  <div className="border border-dashed border-gray-300 rounded-xl p-4 text-sm text-gray-600">
+                                    Select a contestant to read their bio.
+                                  </div>
+                                ) : (
+                                  <div className="space-y-3">
+                                    <p className="text-xs text-gray-500">Contestant</p>
+                                    <h4 className="text-lg font-bold text-gray-900">
+                                      #{activeContestant.contestant_number} · {activeContestant.name}
+                                    </h4>
+                                    <p className="text-sm text-gray-600">
+                                      {activeContestant.contestant_category_name ||
+                                        (activeContestant.contestant_category
+                                          ? contestantCategoriesById.get(activeContestant.contestant_category)?.name
+                                          : null) ||
+                                        'Uncategorized'}
+                                    </p>
+                                    {activeContestant.bio ? (
+                                      <p className="text-sm text-gray-700 leading-relaxed mt-3 whitespace-pre-line">
+                                        {activeContestant.bio}
+                                      </p>
+                                    ) : (
+                                      <p className="text-sm text-gray-500 mt-3">Bio not provided yet.</p>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Column 3: Image */}
+                              <div className="lg:w-2/5 p-4 border-t lg:border-t-0 lg:border-l border-gray-200">
+                                {!activeContestant ? (
+                                  <div className="border border-dashed border-gray-300 rounded-xl p-4 text-sm text-gray-600">
+                                    Photo appears here.
+                                  </div>
+                                ) : (
+                                  <div className="w-full h-56 sm:h-64 lg:h-full min-h-[14rem] rounded-xl overflow-hidden bg-gray-100 relative">
+                                    {activeContestant.photo_url ? (
+                                      <img
+                                        src={activeContestant.photo_url}
+                                        alt={activeContestant.name}
+                                        className="w-full h-full object-cover object-top"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100">
+                                        <span className="text-5xl font-bold text-green-200">#{activeContestant.contestant_number}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
