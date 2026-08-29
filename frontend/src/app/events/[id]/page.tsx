@@ -496,8 +496,9 @@ const EventDetailPage = () => {
                           </button>
                         </div>
 
-                        <div className="grid lg:grid-cols-5">
-                          <div className="lg:col-span-3 border-b lg:border-b-0 lg:border-r border-gray-200">
+                        <div className="grid lg:grid-cols-3">
+                          {/* Column 1: Names */}
+                          <div className="lg:col-span-1 border-b lg:border-b-0 lg:border-r border-gray-200">
                             <div className="p-4 space-y-3">
                               <div className="flex flex-wrap gap-2">
                                 <button
@@ -585,27 +586,16 @@ const EventDetailPage = () => {
                             </div>
                           </div>
 
-                          <div className="lg:col-span-2">
-                            <div className="p-4">
+                          {/* Columns 2 & 3: Bio + Image (side by side on lg, stacked on mobile) */}
+                          <div className="lg:col-span-2 flex flex-col lg:flex-row">
+                            {/* Column 2: Bio / details */}
+                            <div className="lg:w-3/5 p-4 order-2 lg:order-1">
                               {!activeContestant ? (
                                 <div className="border border-dashed border-gray-300 rounded-xl p-4 text-sm text-gray-600">
                                   Select a contestant to read their bio.
                                 </div>
                               ) : (
                                 <div className="space-y-3">
-                                  <div className="w-full h-48 sm:h-56 rounded-xl overflow-hidden bg-gray-100 relative">
-                                    {activeContestant.photo_url ? (
-                                      <img
-                                        src={activeContestant.photo_url}
-                                        alt={activeContestant.name}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100">
-                                        <span className="text-5xl font-bold text-green-200">#{activeContestant.contestant_number}</span>
-                                      </div>
-                                    )}
-                                  </div>
                                   <p className="text-xs text-gray-500">Contestant</p>
                                   <h4 className="text-lg font-bold text-gray-900">
                                     #{activeContestant.contestant_number} · {activeContestant.name}
@@ -623,6 +613,29 @@ const EventDetailPage = () => {
                                     </p>
                                   ) : (
                                     <p className="text-sm text-gray-500 mt-3">Bio not provided yet.</p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Column 3: Image */}
+                            <div className="lg:w-2/5 p-4 order-1 lg:order-2 border-t lg:border-t-0 lg:border-l border-gray-200">
+                              {!activeContestant ? (
+                                <div className="border border-dashed border-gray-300 rounded-xl p-4 text-sm text-gray-600">
+                                  Photo appears here.
+                                </div>
+                              ) : (
+                                <div className="w-full h-56 sm:h-64 lg:h-full min-h-[14rem] rounded-xl overflow-hidden bg-gray-100 relative">
+                                  {activeContestant.photo_url ? (
+                                    <img
+                                      src={activeContestant.photo_url}
+                                      alt={activeContestant.name}
+                                      className="w-full h-full object-cover object-top"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100">
+                                      <span className="text-5xl font-bold text-green-200">#{activeContestant.contestant_number}</span>
+                                    </div>
                                   )}
                                 </div>
                               )}
