@@ -656,12 +656,12 @@ const EventDetailPage = () => {
                                     Photo appears here.
                                   </div>
                                 ) : (
-                                  <div className="w-full h-56 sm:h-64 lg:h-full min-h-[14rem] rounded-xl overflow-hidden bg-gray-100 relative">
+                                  <div className="w-full lg:h-full max-h-[60vh] lg:max-h-none min-h-[14rem] rounded-xl overflow-hidden bg-gray-100 relative">
                                     {activeContestant.photo_url ? (
                                       <img
                                         src={activeContestant.photo_url}
                                         alt={activeContestant.name}
-                                        className="w-full h-full object-cover object-top"
+                                        className="w-full h-auto lg:h-full object-cover object-top"
                                       />
                                     ) : (
                                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100">
