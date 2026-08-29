@@ -481,8 +481,8 @@ const EventDetailPage = () => {
                       className="absolute inset-0 bg-black/60"
                     />
                     <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center">
-                      <div className="w-full bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden max-h-[85vh]">
-                        <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between gap-4">
+                      <div className="w-full bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden max-h-[85vh] flex flex-col lg:block">
+                        <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between gap-4 flex-shrink-0">
                           <div className="min-w-0">
                             <p className="text-xs text-gray-500">Contestants</p>
                             <h3 className="text-lg font-bold text-gray-900 truncate">{event.title}</h3>
@@ -496,7 +496,7 @@ const EventDetailPage = () => {
                           </button>
                         </div>
 
-                        <div className="grid lg:grid-cols-3">
+                        <div className="grid lg:grid-cols-3 lg:max-h-[calc(85vh-4rem)] lg:overflow-hidden flex-1 overflow-y-auto">
                           {/* Column 1: Names */}
                           <div className="lg:col-span-1 border-b lg:border-b-0 lg:border-r border-gray-200">
                             <div className="p-4 space-y-3">
@@ -554,7 +554,7 @@ const EventDetailPage = () => {
                               </div>
                             </div>
 
-                            <div className="max-h-[52vh] overflow-auto">
+                            <div className="max-h-[40vh] lg:max-h-none overflow-auto">
                               {filteredContestants.length === 0 ? (
                                 <div className="p-4 text-sm text-gray-500">No contestants found.</div>
                               ) : (
