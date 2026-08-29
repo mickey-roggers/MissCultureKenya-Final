@@ -37,12 +37,12 @@ const AboutPage = () => {
   const { settings, loading } = useAboutPageSettings()
 
   const historyMilestones = [
-    { year: '2015', title: 'Foundation', description: 'Miss Culture Global Kenya was established with a vision to celebrate and preserve Kenya\'s rich cultural heritage.' },
-    { year: '2017', title: 'First International Representation', description: 'Our first representative participated in the Miss Culture Global competition, placing in the top 10 — proving Kenya belongs on the world cultural stage.' },
-    { year: '2019', title: 'Community Outreach Program', description: 'Launched our community outreach program supporting local artisans and cultural preservation initiatives across 5 counties.' },
-    { year: '2021', title: 'Digital Transformation', description: 'Expanded our reach through digital platforms, connecting with global audiences and bringing Kenyan culture to screens worldwide.' },
-    { year: '2023', title: 'Youth Empowerment Initiative', description: 'Introduced programs focused on youth leadership and cultural education, reaching 1,000+ young Kenyans in its first year.' },
-    { year: '2024', title: 'Global Recognition', description: 'Received international recognition for our contribution to cultural preservation and promotion — now operating in partnership with 50+ nations.' }
+    { year: '2025', title: 'Foundation', description: 'Miss Culture Global Kenya was founded to celebrate, preserve, and promote Kenyan culture on the global stage.' },
+    { year: '2025', title: 'First International Representation', description: 'Our first representative carried the Kenyan flag onto the international Miss Culture Global stage.' },
+    { year: '2025', title: 'Community Outreach Programs', description: 'To promote, Preserve and Celebrate our Kenyan cultures.' },
+    { year: '2025', title: 'Digital Transformation', description: 'Expanding our reach through digital platforms to share Kenyan culture with global audiences.' },
+    { year: '2025', title: 'Youth Empowerment', description: 'Equipping young Kenyans with leadership, confidence, and cultural ambassadorship skills.' },
+    { year: '2025', title: 'Global Recognition', description: 'Gaining international recognition for our contribution to cultural preservation and promotion.' }
   ]
 
   const values = [

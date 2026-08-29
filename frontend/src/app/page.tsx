@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Hero from '@/components/Hero'
-import ImpactStats from '@/components/ImpactStats'
 import MissionVision from '@/components/MissionVision'
 import CultureImpact from '@/components/CultureImpact'
 import CoreValues from '@/components/CoreValues'
@@ -99,7 +98,6 @@ export default function Home() {
       <CultureImpact />
       <CoreValues />
       <AmbassadorSpotlight />
-      <ImpactStats />
       <SupportBlocks />
       <FollowCTA />
       
