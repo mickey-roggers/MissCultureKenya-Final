@@ -22,6 +22,7 @@ interface ContestantData {
   id: number
   name: string
   bio: string
+  photo_url: string | null
   contestant_number: number
   slug: string
   contestant_category: number | null
@@ -591,7 +592,20 @@ const EventDetailPage = () => {
                                   Select a contestant to read their bio.
                                 </div>
                               ) : (
-                                <div className="space-y-2">
+                                <div className="space-y-3">
+                                  <div className="w-full h-48 sm:h-56 rounded-xl overflow-hidden bg-gray-100 relative">
+                                    {activeContestant.photo_url ? (
+                                      <img
+                                        src={activeContestant.photo_url}
+                                        alt={activeContestant.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100">
+                                        <span className="text-5xl font-bold text-green-200">#{activeContestant.contestant_number}</span>
+                                      </div>
+                                    )}
+                                  </div>
                                   <p className="text-xs text-gray-500">Contestant</p>
                                   <h4 className="text-lg font-bold text-gray-900">
                                     #{activeContestant.contestant_number} · {activeContestant.name}
