@@ -112,13 +112,6 @@ const AboutPage = () => {
   const displayLeadershipTeam = mergeTeamMembers(settingsLeadershipTeam, leadershipTeam)
   const displayCommitteeTeam = mergeTeamMembers(settingsCommitteeTeam, committeeTeam)
 
-  const impactHighlights = [
-    { number: '500+', label: 'Artisans Supported', description: 'Providing sustainable income through cultural crafts' },
-    { number: '1,000+', label: 'Youth Engaged', description: 'Empowering the next generation of cultural ambassadors' },
-    { number: '50+', label: 'Countries Reached', description: 'Promoting Kenyan culture on the global stage' },
-    { number: '100+', label: 'Communities Impacted', description: 'Strengthening local cultural preservation efforts' }
-  ]
-
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -569,40 +562,6 @@ const AboutPage = () => {
               No organizing committee members have been added yet.
             </p>
           )}
-        </div>
-      </section>
-
-      {/* 8. Impact Highlights */}
-      <section className="py-24 bg-green-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-4xl font-bold mb-4">Our Impact in <span className="text-red-600">Numbers</span></h2>
-            <p className="text-xl text-green-100 max-w-2xl mx-auto font-light">Real people, real communities, real results. Here&apos;s the measurable difference we&apos;ve made.</p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-            {impactHighlights.map((item, index) => (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="p-6"
-              >
-                <div className="text-4xl md:text-5xl font-bold text-yellow-400 mb-2">{item.number}</div>
-                <div className="text-xl font-bold mb-2">{item.label}</div>
-                <div className="text-green-200 text-sm">{item.description}</div>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 
