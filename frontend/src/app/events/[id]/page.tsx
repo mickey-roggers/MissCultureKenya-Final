@@ -499,7 +499,7 @@ const EventDetailPage = () => {
 
                         <div className="grid lg:grid-cols-3 lg:max-h-[calc(85vh-4rem)] lg:overflow-hidden flex-1 overflow-y-auto">
                           {/* Column 1: Names */}
-                          <div className="lg:col-span-1 border-b lg:border-b-0 lg:border-r border-gray-200">
+                          <div className="lg:col-span-1 border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col lg:h-full">
                             <div className="p-4 space-y-3">
                               <div className="flex flex-wrap gap-2">
                                 <button
@@ -555,7 +555,7 @@ const EventDetailPage = () => {
                               </div>
                             </div>
 
-                            <div className="max-h-[40vh] lg:max-h-none overflow-auto">
+                            <div className="max-h-[40vh] lg:max-h-none lg:flex-1 lg:min-h-0 overflow-y-auto">
                               {filteredContestants.length === 0 ? (
                                 <div className="p-4 text-sm text-gray-500">No contestants found.</div>
                               ) : (
@@ -620,7 +620,7 @@ const EventDetailPage = () => {
 
                             <div className="flex-1 overflow-y-auto lg:overflow-visible flex flex-col lg:flex-row">
                               {/* Column 2: Bio / details */}
-                              <div className="lg:w-3/5 p-4">
+                              <div className="lg:w-3/5 p-4 lg:overflow-y-auto lg:max-h-[calc(85vh-4rem)]">
                                 {!activeContestant ? (
                                   <div className="border border-dashed border-gray-300 rounded-xl p-4 text-sm text-gray-600">
                                     Select a contestant to read their bio.
@@ -650,21 +650,21 @@ const EventDetailPage = () => {
                               </div>
 
                               {/* Column 3: Image */}
-                              <div className="lg:w-2/5 p-4 border-t lg:border-t-0 lg:border-l border-gray-200">
+                              <div className="lg:w-2/5 p-4 border-t lg:border-t-0 lg:border-l border-gray-200 lg:overflow-y-auto lg:max-h-[calc(85vh-4rem)]">
                                 {!activeContestant ? (
                                   <div className="border border-dashed border-gray-300 rounded-xl p-4 text-sm text-gray-600">
                                     Photo appears here.
                                   </div>
                                 ) : (
-                                  <div className="w-full lg:h-full max-h-[60vh] lg:max-h-none min-h-[14rem] rounded-xl overflow-hidden bg-gray-100 relative">
+                                  <div className="w-full min-h-[14rem] rounded-xl overflow-hidden bg-gray-100 relative">
                                     {activeContestant.photo_url ? (
                                       <img
                                         src={activeContestant.photo_url}
                                         alt={activeContestant.name}
-                                        className="w-full h-auto lg:h-full object-cover object-top"
+                                        className="w-full h-auto object-contain object-top"
                                       />
                                     ) : (
-                                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100">
+                                      <div className="w-full min-h-[14rem] flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100">
                                         <span className="text-5xl font-bold text-green-200">#{activeContestant.contestant_number}</span>
                                       </div>
                                     )}
