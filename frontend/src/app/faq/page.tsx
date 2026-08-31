@@ -23,7 +23,7 @@ const faqCategories = [
       },
       {
         question: 'When was this started?',
-        answer: 'Miss Culture Global Kenya was established in 2015 with the vision to celebrate and preserve Kenya\'s rich cultural heritage while promoting it globally. Since then, we\'ve grown to impact 100+ communities across Kenya.'
+        answer: 'Miss Culture Global Kenya was established in 2025 with the vision to celebrate and preserve Kenya\'s rich cultural heritage while promoting it globally. Since then, we\'ve grown to impact 100+ communities across Kenya.'
       },
       {
         question: 'Is this a nonprofit?',
@@ -39,7 +39,7 @@ const faqCategories = [
     faqs: [
       {
         question: 'How do I enter the pageant?',
-        answer: 'Applications open in March each year. You must be a Kenyan citizen aged 18-28 with a passion for cultural preservation and demonstrated leadership qualities. Complete at least secondary education.'
+        answer: 'Applications open every January. To enter, you must be: aged 18–30 years; a Kenyan citizen by birth or registration; holding a valid Kenyan ID and passport; unmarried (with or without kids); and of all shapes and sizes. A passion for cultural preservation is what unites every contestant.'
       },
       {
         question: 'What are the age requirements?',
