@@ -365,7 +365,7 @@ const EventsPage = () => {
       {/* ===================== 4. URGENCY & SOCIAL PROOF ===================== */}
       <div className="py-16 sm:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Social Proof / Testimonials */}
+          {/* Social Proof / Testimonials — DISABLED
           <motion.div {...fadeInUp} className="text-center mb-10">
             <span className="inline-flex items-center gap-2 text-green-700 font-semibold tracking-wider uppercase text-sm mb-3">
               <Quote className="w-4 h-4" /> What Past Attendees Say
@@ -390,8 +390,9 @@ const EventsPage = () => {
               </motion.div>
             ))}
           </div>
+          */}
 
-          {/* Past Events */}
+          {/* Past Events — DISABLED
           {displayPastEvents.length > 0 ? (
             <>
               <motion.div {...fadeInUp} className="text-center mb-10">
@@ -444,6 +445,7 @@ const EventsPage = () => {
               <p className="text-gray-500">No past events yet. Check back after our upcoming events.</p>
             </div>
           )}
+          */}
 
         </div>
       </div>
