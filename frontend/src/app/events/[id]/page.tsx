@@ -555,7 +555,7 @@ const EventDetailPage = () => {
                               </div>
                             </div>
 
-                            <div className="max-h-[40vh] lg:max-h-none lg:flex-1 lg:min-h-0 overflow-y-auto">
+                            <div className="max-h-[40vh] lg:max-h-[calc(85vh-12rem)] lg:flex-1 lg:min-h-0 overflow-y-auto">
                               {filteredContestants.length === 0 ? (
                                 <div className="p-4 text-sm text-gray-500">No contestants found.</div>
                               ) : (
