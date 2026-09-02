@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils import timezone
+import json
 from .models import (
     Event, EventCategory,
     TicketCategory, Contestant, ContestantCategory, GuestSpeaker, Payment, Contribution, Ticket, VoteTransaction, AuditLog, FinanceSettings
@@ -7,7 +8,7 @@ from .models import (
 from .utils import generate_ticket_code, calculate_vote_count
 
 
-# ── Inlines ──────────────────────────────────────────────────────────────────
+# ── Inlines ───────────────────────────────────────────────────────────��[...]
 
 class TicketCategoryInline(admin.TabularInline):
     model = TicketCategory
@@ -36,7 +37,7 @@ class GuestSpeakerInline(admin.TabularInline):
     ordering = ['order', 'name']
 
 
-# ── Event Admin ──────────────────────────────────────────────────────────────
+# ── Event Admin ──────────────────────────────────────────────────────────�[...]
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
@@ -112,7 +113,7 @@ class TicketCategoryAdmin(admin.ModelAdmin):
     ordering = ['event', 'order', 'price']
 
 
-# ── Contestant Admin ─────────────────────────────────────────────────────────
+# ── Contestant Admin ────────────────────────────────────────────────────────�[...]
 
 @admin.register(Contestant)
 class ContestantAdmin(admin.ModelAdmin):
@@ -152,13 +153,17 @@ class ContestantCategoryAdmin(admin.ModelAdmin):
             AuditLog.objects.create(
                 action='contestant_category_edit',
                 actor=request.user.username,
-                details=f"Edited contestant category '{obj.name}' in event '{obj.event.title}'",
+                details=json.dumps({
+                    'contestant_category_id': obj.id,
+                    'contestant_category_name': obj.name,
+                    'event': obj.event.title,
+                }),
                 event=obj.event,
             )
         super().save_model(request, obj, form, change)
 
 
-# ── Payment Admin ────────────────────────────────────────────────────────────
+# ── Payment Admin ─────────────────────────────────────────────────────────�[...]
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
@@ -298,7 +303,7 @@ class ContributionAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
 
 
-# ── Ticket Admin ─────────────────────────────────────────────────────────────
+# ── Ticket Admin ─────────────────────────────────────────────────────────��[...]
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
@@ -331,7 +336,7 @@ class VoteTransactionAdmin(admin.ModelAdmin):
         return False  # Votes are only created through payment processing
 
 
-# ── AuditLog Admin ───────────────────────────────────────────────────────────
+# ── AuditLog Admin ─────────────────────────────────────────────────────────[...]
 
 @admin.register(AuditLog)
 class AuditLogAdmin(admin.ModelAdmin):
