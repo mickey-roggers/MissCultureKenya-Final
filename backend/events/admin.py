@@ -148,11 +148,11 @@ class ContestantCategoryAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if change:
-            # Audit log for contestant edits
+            # Audit log for contestant category edits
             AuditLog.objects.create(
-                action='contestant_edit',
+                action='contestant_category_edit',
                 actor=request.user.username,
-                details=f"Edited contestant #{obj.contestant_number} '{obj.name}' in event '{obj.event.title}'",
+                details=f"Edited contestant category '{obj.name}' in event '{obj.event.title}'",
                 event=obj.event,
             )
         super().save_model(request, obj, form, change)
