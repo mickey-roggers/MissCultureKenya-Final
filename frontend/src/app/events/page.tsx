@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import ContactModal from '@/components/ContactModal'
 import apiClient from '@/lib/api'
 import { useEventsPageSettings } from '@/lib/usePageSettings'
+import { formatEventTime } from '@/lib/eventDate'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
@@ -123,7 +124,7 @@ const EventsPage = () => {
       id: event.id,
       title: event.title || event.name,
       date: event.start_date || event.date,
-      time: event.start_time || event.time || '10:00 AM',
+      time: event.start_time || event.time || formatEventTime(event.start_date) || 'Time not set',
       venue: event.venue_name || event.venue,
       location: `${event.city || ''}, ${event.country || 'Kenya'}`.trim().replace(/^,\s*/, ''),
       description: event.description,

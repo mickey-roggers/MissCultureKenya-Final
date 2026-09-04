@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import apiClient, { downloadTickets } from '@/lib/api'
 import type { ApiError } from '@/lib/api'
+import { formatEventTime } from '@/lib/eventDate'
 
 interface TicketCategoryData {
   id: number
@@ -118,7 +119,7 @@ const EventDetailPage = () => {
           id: data.id,
           title: data.title || data.name,
           date: data.start_date || data.date,
-          time: data.start_time || data.time || '10:00 AM',
+          time: data.start_time || data.time || formatEventTime(data.start_date) || 'Time not set',
           venue: data.venue_name || data.venue,
           location: `${data.city || ''}, ${data.country || 'Kenya'}`.trim().replace(/^,\s*/, ''),
           description: data.description,
