@@ -99,7 +99,7 @@ const VotingPage = () => {
     const fetchEvents = async () => {
       try {
         const data = await apiClient.getVotingEvents()
-        const results = Array.isArray(data) ? data : (data?.results || [])
+        const results: VotingEvent[] = Array.isArray(data) ? data : (data?.results || [])
         setEvents(results)
         if (results.length > 0) {
           setSelectedEvent(results.find((event) => event.slug === requestedEventSlug) || results[0])
