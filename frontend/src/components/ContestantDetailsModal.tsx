@@ -94,6 +94,15 @@ const ContestantDetailsModal = ({ isOpen, onClose, contestant, onVote, isVotingA
               <div className="absolute top-4 left-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
                 #{contestant.contestant_number}
               </div>
+              <button
+                type="button"
+                onClick={handleShare}
+                aria-label="Share contestant profile"
+                className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-2 text-sm font-semibold text-gray-700 shadow-lg backdrop-blur-sm transition-colors hover:bg-white hover:text-green-700"
+              >
+                {copied ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
+                {copied ? 'Copied!' : 'Share'}
+              </button>
             </div>
 
             {/* Content Section */}
