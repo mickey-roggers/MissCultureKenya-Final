@@ -16,6 +16,8 @@ interface Contestant {
   slug: string
   vote_count: number | null
   event_slug?: string
+  event_title?: string
+  contestant_category_name?: string | null
 }
 
 interface ContestantDetailsModalProps {
@@ -39,14 +41,20 @@ const ContestantDetailsModal = ({ isOpen, onClose, contestant, onVote, isVotingA
       : `${window.location.origin}/voting`
     if (navigator.share) {
       try {
+        const category = contestant.contestant_category_name || 'Contestant'
+        const eventTitle = contestant.event_title || 'Miss Culture Global Kenya'
+        const intro = contestant.bio || contestant.mission_statement || `Meet ${contestant.name} in ${eventTitle}.`
         await navigator.share({
-          title: `Vote for ${contestant.name}`,
-          text: `Support ${contestant.name}! Cast your vote now.`,
+          title: `${contestant.name} | ${category} | ${eventTitle}`,
+          text: `${contestant.name} | ${category}\n${eventTitle}\n\n${intro}\n\nSupport ${contestant.name} by voting now:`,
           url,
         })
       } catch {}
     } else {
-      await navigator.clipboard.writeText(url)
+      const category = contestant.contestant_category_name || 'Contestant'
+      const eventTitle = contestant.event_title || 'Miss Culture Global Kenya'
+      const intro = contestant.bio || contestant.mission_statement || `Meet ${contestant.name} in ${eventTitle}.`
+      await navigator.clipboard.writeText(`${contestant.name} | ${category}\n${eventTitle}\n\n${intro}\n\nSupport ${contestant.name} by voting now:\n${url}`)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }

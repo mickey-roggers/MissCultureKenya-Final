@@ -21,6 +21,7 @@ interface ContestantData {
   vote_count: number | null
   event_title: string
   event_slug: string
+  contestant_category_name?: string | null
 }
 
 interface EventData {
@@ -87,16 +88,27 @@ export default function ContestantPage({ params }: { params: Promise<{ eventSlug
 
   const handleShare = async () => {
     const url = window.location.href
+    const category = contestant?.contestant_category_name || 'Contestant'
+    const eventTitle = contestant?.event_title || 'Miss Culture Global Kenya'
+    const intro = contestant?.bio || contestant?.mission_statement || `Meet ${contestant?.name} in ${eventTitle}.`
+    const shareTitle = `${contestant?.name} | ${category} | ${eventTitle}`
+    const shareText = `${contestant?.name} | ${category}
+${eventTitle}
+
+${intro}
+
+Support ${contestant?.name} by voting now:`
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Vote for ${contestant?.name}`,
-          text: `Support ${contestant?.name} in ${contestant?.event_title}! Cast your vote now.`,
+          title: shareTitle,
+          text: shareText,
           url,
         })
       } catch {}
     } else {
-      await navigator.clipboard.writeText(url)
+    await navigator.clipboard.writeText(`${shareText}
+  ${url}`)
       setCopiedLink(true)
       setTimeout(() => setCopiedLink(false), 2000)
     }

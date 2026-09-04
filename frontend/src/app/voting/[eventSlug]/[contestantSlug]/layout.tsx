@@ -71,12 +71,11 @@ export async function generateMetadata(
 
   const { event, contestant } = data
   const name: string = contestant.name || 'Contestant'
+  const category: string = contestant.contestant_category_name || 'Contestant'
   const number = contestant.contestant_number ? `#${contestant.contestant_number} ` : ''
   const eventTitle: string = event.title || contestant.event_title || 'Miss Culture Global Kenya'
-  const rawDescription: string =
-    contestant.bio ||
-    contestant.mission_statement ||
-    `Vote for ${name} in ${eventTitle}. Support your favourite contestant at Miss Culture Global Kenya.`
+  const intro: string = contestant.bio || contestant.mission_statement || `Meet ${name}, competing in ${eventTitle}.`
+  const rawDescription = `${intro} Support ${name} by voting in ${eventTitle}.`
   const description =
     rawDescription.length > 200 ? `${rawDescription.slice(0, 197)}...` : rawDescription
 
@@ -85,7 +84,7 @@ export async function generateMetadata(
     ? [{ url: photo, width: 1200, height: 630, alt: name }]
     : [{ url: '/opengraph-image', width: 1200, height: 630, alt: name }]
 
-  const title = `${number}${name} — ${eventTitle}`
+  const title = `${number}${name} | ${category} | ${eventTitle}`
 
   return {
     title,
