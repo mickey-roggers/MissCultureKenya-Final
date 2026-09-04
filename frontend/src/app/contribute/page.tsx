@@ -39,7 +39,7 @@ const ContributePage = () => {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
-  const [amount, setAmount] = useState('1000')
+  const [amount, setAmount] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -295,6 +295,7 @@ const ContributePage = () => {
                   <input
                     type="number"
                     value={amount}
+                    placeholder="Enter amount"
                     min={1}
                     onChange={(e) => { setAmount(e.target.value); setError('') }}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-lg font-bold"

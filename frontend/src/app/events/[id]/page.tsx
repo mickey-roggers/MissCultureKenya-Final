@@ -384,7 +384,7 @@ const EventDetailPage = () => {
             {event.audience && <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium">{event.audience}</span>}
             {priceLabel && <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium">{priceLabel}</span>}
             {isVotingOpen && (
-              <Link href={event.slug ? `/voting/${event.slug}` : '/voting'} className="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1 hover:bg-red-700 transition-colors">
+              <Link href={event.slug ? `/voting?event=${encodeURIComponent(event.slug)}` : '/voting'} className="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1 hover:bg-red-700 transition-colors">
                 <Vote className="w-3 h-3" /> Voting Open
               </Link>
             )}
@@ -833,7 +833,7 @@ const EventDetailPage = () => {
                   </div>
                   {isVotingOpen ? (
                     <Link
-                      href={event.slug ? `/voting/${event.slug}` : '/voting'}
+                      href={event.slug ? `/voting?event=${encodeURIComponent(event.slug)}` : '/voting'}
                       className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors text-center whitespace-nowrap flex-shrink-0"
                     >
                       Vote Now

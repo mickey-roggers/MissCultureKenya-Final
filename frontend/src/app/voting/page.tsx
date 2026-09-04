@@ -69,6 +69,7 @@ const VotingPage = () => {
   const [loading, setLoading] = useState(true)
   const [contestantsLoading, setContestantsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [requestedEventSlug, setRequestedEventSlug] = useState('')
 
   // Leaderboard (respects the event's result_visibility)
   const [leaderboard, setLeaderboard] = useState<LiveResult[]>([])
@@ -88,6 +89,11 @@ const VotingPage = () => {
   const [showVerify, setShowVerify] = useState(false)
   const { settings: pageSettings } = useVotingPageSettings()
 
+  useEffect(() => {
+    const slug = new URLSearchParams(window.location.search).get('event')
+    setRequestedEventSlug(slug || '')
+  }, [])
+
   // Fetch voting events on mount
   useEffect(() => {
     const fetchEvents = async () => {
@@ -96,7 +102,7 @@ const VotingPage = () => {
         const results = Array.isArray(data) ? data : (data?.results || [])
         setEvents(results)
         if (results.length > 0) {
-          setSelectedEvent(results[0])
+          setSelectedEvent(results.find((event) => event.slug === requestedEventSlug) || results[0])
         }
       } catch (err) {
         const apiErr = err as ApiError
@@ -106,7 +112,7 @@ const VotingPage = () => {
       }
     }
     fetchEvents()
-  }, [])
+  }, [requestedEventSlug])
 
   // Fetch contestants when event changes
   useEffect(() => {

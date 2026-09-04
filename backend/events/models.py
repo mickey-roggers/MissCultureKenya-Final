@@ -129,8 +129,15 @@ class Event(models.Model):
 
     @property
     def is_voting_active(self):
-        # Simplified: voting is active when enabled and status is voting_open
-        return self.voting_enabled and self.event_status == 'voting_open'
+        if not self.voting_enabled or self.event_status != 'voting_open':
+            return False
+
+        now = timezone.now()
+        if self.voting_start and now < self.voting_start:
+            return False
+        if self.voting_end and now >= self.voting_end:
+            return False
+        return True
 
     @property
     def duration_display(self):
