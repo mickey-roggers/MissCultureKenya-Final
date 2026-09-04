@@ -44,9 +44,10 @@ const ContestantDetailsModal = ({ isOpen, onClose, contestant, onVote, isVotingA
         const category = contestant.contestant_category_name || 'Contestant'
         const eventTitle = contestant.event_title || 'Miss Culture Global Kenya'
         const intro = contestant.bio || contestant.mission_statement || `Meet ${contestant.name} in ${eventTitle}.`
+        const shortIntro = intro.length > 140 ? `${intro.slice(0, 137)}...` : intro
         await navigator.share({
-          title: `${contestant.name} | ${category} | ${eventTitle}`,
-          text: `${contestant.name} | ${category}\n${eventTitle}\n\n${intro}\n\nSupport ${contestant.name} by voting now:`,
+          title: `#${contestant.contestant_number} ${contestant.name} — ${category} | ${eventTitle}`,
+          text: `${shortIntro}\n\nSupport ${contestant.name}! Cast your vote now.`,
           url,
         })
       } catch {}
@@ -54,7 +55,8 @@ const ContestantDetailsModal = ({ isOpen, onClose, contestant, onVote, isVotingA
       const category = contestant.contestant_category_name || 'Contestant'
       const eventTitle = contestant.event_title || 'Miss Culture Global Kenya'
       const intro = contestant.bio || contestant.mission_statement || `Meet ${contestant.name} in ${eventTitle}.`
-      await navigator.clipboard.writeText(`${contestant.name} | ${category}\n${eventTitle}\n\n${intro}\n\nSupport ${contestant.name} by voting now:\n${url}`)
+      const shortIntro = intro.length > 140 ? `${intro.slice(0, 137)}...` : intro
+      await navigator.clipboard.writeText(`${shortIntro}\n\nSupport ${contestant.name}! Cast your vote now.\n${url}`)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }

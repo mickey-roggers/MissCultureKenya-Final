@@ -91,13 +91,11 @@ export default function ContestantPage({ params }: { params: Promise<{ eventSlug
     const category = contestant?.contestant_category_name || 'Contestant'
     const eventTitle = contestant?.event_title || 'Miss Culture Global Kenya'
     const intro = contestant?.bio || contestant?.mission_statement || `Meet ${contestant?.name} in ${eventTitle}.`
-    const shareTitle = `${contestant?.name} | ${category} | ${eventTitle}`
-    const shareText = `${contestant?.name} | ${category}
-${eventTitle}
+    const shortIntro = intro.length > 140 ? `${intro.slice(0, 137)}...` : intro
+    const shareTitle = `#${contestant?.contestant_number || ''} ${contestant?.name} — ${category} | ${eventTitle}`
+    const shareText = `${shortIntro}
 
-${intro}
-
-Support ${contestant?.name} by voting now:`
+  Support ${contestant?.name}! Cast your vote now.`
     if (navigator.share) {
       try {
         await navigator.share({

@@ -75,7 +75,7 @@ export async function generateMetadata(
   const number = contestant.contestant_number ? `#${contestant.contestant_number} ` : ''
   const eventTitle: string = event.title || contestant.event_title || 'Miss Culture Global Kenya'
   const intro: string = contestant.bio || contestant.mission_statement || `Meet ${name}, competing in ${eventTitle}.`
-  const rawDescription = `${intro} Support ${name} by voting in ${eventTitle}.`
+  const rawDescription = `${intro} Support ${name}! Cast your vote now.`
   const description =
     rawDescription.length > 200 ? `${rawDescription.slice(0, 197)}...` : rawDescription
 
@@ -84,14 +84,14 @@ export async function generateMetadata(
     ? [{ url: photo, width: 1200, height: 630, alt: name }]
     : [{ url: '/opengraph-image', width: 1200, height: 630, alt: name }]
 
-  const title = `${number}${name} | ${category} | ${eventTitle}`
+  const title = `${number}${name} — ${category} | ${eventTitle}`
 
   return {
     title,
     description,
     alternates: { canonical: `/voting/${eventSlug}/${contestantSlug}` },
     openGraph: {
-      title: `${title} | Miss Culture Global Kenya`,
+      title,
       description,
       url,
       siteName: 'Miss Culture Global Kenya',
@@ -101,7 +101,7 @@ export async function generateMetadata(
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${title} | Miss Culture Global Kenya`,
+      title,
       description,
       images: photo ? [photo] : ['/twitter-image'],
     },
