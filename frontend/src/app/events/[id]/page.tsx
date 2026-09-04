@@ -407,11 +407,13 @@ const EventDetailPage = () => {
                 { icon: MapPin, label: 'Venue', value: event.venue },
                 { icon: Users, label: 'Capacity', value: `${event.capacity} guests` },
               ].map((item, i) => (
-                <div key={i} className="flex items-center space-x-2 bg-green-50 rounded-xl px-3 py-3">
+                <div key={i} className="min-w-0 flex items-center space-x-2 bg-green-50 rounded-xl px-3 py-3">
                   <item.icon className="w-4 h-4 text-green-600 flex-shrink-0" />
                   <div className="min-w-0">
                     <p className="text-xs text-gray-500">{item.label}</p>
-                    <p className="text-xs font-semibold text-gray-900 truncate">{item.value}</p>
+                    <p className={`text-xs font-semibold text-gray-900 ${item.label === 'Venue' ? 'whitespace-normal break-words leading-tight' : 'truncate'}`}>
+                      {item.value}
+                    </p>
                   </div>
                 </div>
               ))}
