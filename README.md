@@ -56,7 +56,7 @@ Frontend also includes its own README at `frontend/README.md` with Next.js-speci
 
 ## Getting started (development)
 
-Prerequisites: Node.js 18+, Python 3.8+, Git, (optional) PostgreSQL for local parity.
+Prerequisites: Node.js 24.x, Python 3.8+, Git, (optional) PostgreSQL for local parity.
 
 Backend (development):
 
