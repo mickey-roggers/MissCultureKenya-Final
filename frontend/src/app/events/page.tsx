@@ -288,11 +288,11 @@ const EventsPage = () => {
                     key={event.id}
                     {...stagger}
                     transition={{ duration: 0.5, delay: index * 0.08 }}
-                    className="bg-white rounded-2xl transition-all duration-300 overflow-hidden group cursor-pointer border border-gray-100 flex flex-col lg:flex-row"
+                    className="bg-white rounded-2xl transition-all duration-300 overflow-hidden group cursor-pointer border border-gray-100 flex flex-col lg:grid lg:grid-cols-[12rem_minmax(0,1fr)]"
                     onClick={() => handleEventClick(event)}
                   >
                     {/* Event Image with date overlay */}
-                    <div className="lg:w-48 flex-shrink-0 relative h-48 lg:h-auto overflow-hidden">
+                    <div className="relative h-48 lg:h-full min-w-0 overflow-hidden">
                       {event.image ? (
                         <img
                           src={event.image}
@@ -316,7 +316,7 @@ const EventsPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex-1 p-4 sm:p-5 lg:p-6 flex flex-col">
+                    <div className="min-w-0 p-4 sm:p-5 lg:p-6 flex flex-col">
                       {/* Category + Audience tags */}
                       <div className="flex flex-wrap items-center gap-2 mb-2">
                         <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide">
@@ -342,9 +342,9 @@ const EventsPage = () => {
                       </p>
 
                       {/* Details row */}
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 mb-3">
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{event.time}</span>
-                        <span className="flex min-w-0 items-start gap-1 whitespace-normal break-words"><MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" /><span>{event.venue}</span></span>
+                      <div className="flex items-start gap-x-3 gap-y-1 text-xs text-gray-500 mb-3">
+                        <span className="flex flex-shrink-0 items-center gap-1"><Clock className="w-3 h-3" />{event.time}</span>
+                        <span className="flex min-w-0 flex-1 items-start gap-1 whitespace-normal break-words"><MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" /><span className="min-w-0">{event.venue}</span></span>
                       </div>
 
                       {/* Seats + CTA */}
