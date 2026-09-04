@@ -118,7 +118,6 @@ const EventsPage = () => {
   }, [])
 
   const transformEvent = (event: any) => {
-    if (event.title && event.date && event.venue && !event.start_date) return event
     const ticketCategories = event.ticket_categories || []
     return {
       id: event.id,
@@ -137,6 +136,7 @@ const EventsPage = () => {
       contactPhone: event.contact_phone || '+254 721 706983',
       ticketCategories,
       audience: event.audience || 'General Public',
+      status: event.event_status || event.status || 'active',
       votingEnabled: event.voting_enabled || false,
       currentVotes: event.current_votes || 0,
     }
@@ -327,6 +327,11 @@ const EventsPage = () => {
                             {event.audience}
                           </span>
                         )}
+                        {event.status && (
+                          <span className="bg-red-50 text-red-700 px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide">
+                            {event.status.replace(/_/g, ' ')}
+                          </span>
+                        )}
                       </div>
 
                       <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors line-clamp-2">
@@ -339,7 +344,7 @@ const EventsPage = () => {
                       {/* Details row */}
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 mb-3">
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{event.time}</span>
-                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{event.venue}</span>
+                        <span className="flex min-w-0 items-start gap-1 whitespace-normal break-words"><MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" /><span>{event.venue}</span></span>
                       </div>
 
                       {/* Seats + CTA */}
