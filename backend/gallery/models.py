@@ -1,13 +1,30 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 import cloudinary.models
+
+
+MAX_CLOUDINARY_IMAGE_SIZE = 10 * 1024 * 1024
+
+
+def validate_cloudinary_image_size(value):
+    if value and getattr(value, 'size', 0) > MAX_CLOUDINARY_IMAGE_SIZE:
+        raise ValidationError(
+            'Image files must be 10 MB or smaller. Please resize or compress this image before uploading.'
+        )
 
 
 class PhotoCollection(models.Model):
     """Model for organizing photos into collections"""
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    cover_image = cloudinary.models.CloudinaryField('cover_image', folder='missculture/gallery/collections', blank=True, null=True)
+    cover_image = cloudinary.models.CloudinaryField(
+        'cover_image',
+        folder='missculture/gallery/collections',
+        validators=[validate_cloudinary_image_size],
+        blank=True,
+        null=True,
+    )
     featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -35,8 +52,20 @@ class Photo(models.Model):
 
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    image = cloudinary.models.CloudinaryField('image', folder='missculture/gallery/photos', blank=True, null=True)
-    thumbnail = cloudinary.models.CloudinaryField('thumbnail', folder='missculture/gallery/thumbnails', blank=True, null=True)
+    image = cloudinary.models.CloudinaryField(
+        'image',
+        folder='missculture/gallery/photos',
+        validators=[validate_cloudinary_image_size],
+        blank=True,
+        null=True,
+    )
+    thumbnail = cloudinary.models.CloudinaryField(
+        'thumbnail',
+        folder='missculture/gallery/thumbnails',
+        validators=[validate_cloudinary_image_size],
+        blank=True,
+        null=True,
+    )
     category = models.CharField(max_length=30, choices=CATEGORIES)
     collection = models.ForeignKey(PhotoCollection, on_delete=models.SET_NULL, null=True, blank=True, related_name='photos')
     photographer = models.CharField(max_length=200, blank=True)
@@ -101,7 +130,13 @@ class GallerySettings(models.Model):
     """Model for gallery-wide settings"""
     site_title = models.CharField(max_length=200, default="Gallery")
     site_description = models.TextField(blank=True)
-    hero_image = cloudinary.models.CloudinaryField('hero_image', folder='missculture/gallery/settings', blank=True, null=True)
+    hero_image = cloudinary.models.CloudinaryField(
+        'hero_image',
+        folder='missculture/gallery/settings',
+        validators=[validate_cloudinary_image_size],
+        blank=True,
+        null=True,
+    )
     hero_title = models.CharField(max_length=200, blank=True)
     hero_subtitle = models.TextField(blank=True)
     items_per_page = models.PositiveIntegerField(default=20)
