@@ -181,7 +181,7 @@ const EventDetailPage = () => {
   const handleShare = useCallback(async () => {
     if (!event) return
     const eventUrl = `https://misscultureglobalkenya.com/events/${event.id}`
-    const shareData = { title: event.title, text: `Check out ${event.title} — ${event.date} at ${event.venue}`, url: eventUrl }
+    const shareData = { title: event.title, text: `Check out ${event.title} — ${event.date} at ${event.time}, ${event.venue}`, url: eventUrl }
     if (navigator.share) {
       try { await navigator.share(shareData) } catch {}
     } else {
@@ -249,10 +249,9 @@ const EventDetailPage = () => {
   const activeContestant = activeContestantId ? filteredContestants.find((c) => c.id === activeContestantId) : null
 
   const openContestants = () => {
-    setShowContestants(true)
-    setContestantSearch('')
-    setSelectedContestantCategory('all')
-    setActiveContestantId(null)
+    if (event?.slug) {
+      router.push(`/voting?event=${encodeURIComponent(event.slug)}`)
+    }
   }
 
   const updateTicketQuantity = (ticketCategoryId: number, nextQty: number) => {
@@ -360,7 +359,7 @@ const EventDetailPage = () => {
     )
   }
 
-  const isVotingOpen = Boolean(event.voting_enabled && (event.is_voting_active || event.event_status === 'voting_open'))
+  const isVotingOpen = Boolean(event.voting_enabled && event.is_voting_active)
 
   const priceLabel = ticketCategories.length > 0
     ? derivePriceLabel(ticketCategories, event.price)
@@ -839,15 +838,7 @@ const EventDetailPage = () => {
                     >
                       Vote Now
                     </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled
-                      className="bg-gray-200 text-gray-500 px-5 py-2.5 rounded-xl font-semibold text-sm cursor-not-allowed whitespace-nowrap flex-shrink-0 self-start sm:self-auto"
-                    >
-                      Vote Closed
-                    </button>
-                  )}
+                  ) : null}
                 </div>
 
                 {/* Per-event vote verification UI */}

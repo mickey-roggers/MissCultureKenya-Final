@@ -8,6 +8,7 @@ export function formatEventTime(dateValue?: string | null): string {
 
   return new Intl.DateTimeFormat('en-KE', {
     timeZone: EVENT_TIME_ZONE,
+    hour12: true,
     hour: 'numeric',
     minute: '2-digit',
   }).format(date)

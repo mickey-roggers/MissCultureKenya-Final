@@ -6,6 +6,7 @@ import { Ticket, CheckCircle, Calendar, MapPin, User, Mail, Phone, Loader2, Aler
 import Link from 'next/link'
 import apiClient from '@/lib/api'
 import type { ApiError } from '@/lib/api'
+import { formatEventTime } from '@/lib/eventDate'
 
 interface TicketData {
   id: number
@@ -60,10 +61,7 @@ export default function TicketPage({ params }: { params: Promise<{ id: string; t
   }
 
   const formatTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleTimeString('en-KE', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+    return formatEventTime(dateStr)
   }
 
   const handlePrint = () => {

@@ -10,6 +10,7 @@ import type { ApiError } from '@/lib/api'
 import VotePaymentModal from '@/components/VotePaymentModal'
 import ContestantDetailsModal from '@/components/ContestantDetailsModal'
 import { useVotingPageSettings } from '@/lib/usePageSettings'
+import { formatEventTime } from '@/lib/eventDate'
 
 interface Contestant {
   id: number
@@ -207,10 +208,7 @@ const VotingPage = () => {
   }
 
   const formatTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleTimeString('en-KE', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+    return formatEventTime(dateStr)
   }
 
   // Loading state
@@ -470,14 +468,15 @@ const VotingPage = () => {
                           <p className="text-xs text-gray-500 line-clamp-2 mb-3">{contestant.bio}</p>
                         )}
                         <div className="flex gap-2">
-                          <button
-                            onClick={() => handleVoteClick(contestant)}
-                            disabled={!selectedEvent?.is_voting_active}
-                            className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-1.5"
-                          >
-                            <Vote className="w-3.5 h-3.5" />
-                            Vote
-                          </button>
+                          {selectedEvent?.is_voting_active && (
+                            <button
+                              onClick={() => handleVoteClick(contestant)}
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-1.5"
+                            >
+                              <Vote className="w-3.5 h-3.5" />
+                              Vote
+                            </button>
+                          )}
                           <button
                             onClick={() => handleDetailsClick(contestant)}
                             className="px-3 py-2.5 border border-gray-200 rounded-xl text-gray-500 hover:bg-green-50 hover:text-green-600 hover:border-green-200 transition-colors text-xs font-semibold whitespace-nowrap"

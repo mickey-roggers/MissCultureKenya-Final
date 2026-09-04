@@ -185,14 +185,15 @@ const ContestantDetailsModal = ({ isOpen, onClose, contestant, onVote, isVotingA
 
               {/* Action Section */}
               <div className="mt-8 pt-6 border-t border-gray-100">
-                <button
-                  onClick={() => onVote(contestant)}
-                  disabled={!isVotingActive}
-                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-green-600/20"
-                >
-                  <Vote className="w-5 h-5" />
-                  {isVotingActive ? 'Vote Now' : 'Voting Closed'}
-                </button>
+                {isVotingActive && (
+                  <button
+                    onClick={() => onVote(contestant)}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-green-600/20"
+                  >
+                    <Vote className="w-5 h-5" />
+                    Vote Now
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

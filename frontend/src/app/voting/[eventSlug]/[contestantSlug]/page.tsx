@@ -264,14 +264,13 @@ export default function ContestantPage({ params }: { params: Promise<{ eventSlug
               </div>
 
               {/* Vote Button */}
-              {event && (
+              {event?.is_voting_active && (
                 <button
                   onClick={() => setVoteModalOpen(true)}
-                  disabled={!event.is_voting_active}
-                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
                 >
                   <Vote className="w-5 h-5" />
-                  {event.is_voting_active ? 'Vote Now' : 'Voting Closed'}
+                  Vote Now
                 </button>
               )}
             </div>
