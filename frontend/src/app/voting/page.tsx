@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, Trophy, Search, Vote, Phone, ChevronRight, ChevronDown, AlertCircle, Loader2, Check, X, Crown, Medal, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import apiClient from '@/lib/api'
 import type { ApiError } from '@/lib/api'
 import VotePaymentModal from '@/components/VotePaymentModal'
@@ -63,6 +64,7 @@ interface LiveResult {
 }
 
 const VotingPage = () => {
+  const router = useRouter()
   const [events, setEvents] = useState<VotingEvent[]>([])
   const [selectedEvent, setSelectedEvent] = useState<VotingEvent | null>(null)
   const [contestants, setContestants] = useState<Contestant[]>([])
@@ -169,9 +171,9 @@ const VotingPage = () => {
   }, [selectedEvent])
 
   const handleDetailsClick = useCallback((contestant: Contestant) => {
-    setSelectedContestant(contestant)
-    setDetailsModalOpen(true)
-  }, [])
+    if (!selectedEvent?.slug || !contestant.slug) return
+    router.push(`/voting/${selectedEvent.slug}/${contestant.slug}`)
+  }, [router, selectedEvent])
 
   const handleVerifyVotes = async () => {
     if (!verifyPhone || verifyPhone.length < 9) {
