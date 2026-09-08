@@ -1,111 +1,39 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, Mail, Phone, Heart, Calendar, Users, Globe, HelpCircle } from 'lucide-react'
+import { ChevronDown, Mail, Phone, HelpCircle } from 'lucide-react'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useFAQPageSettings } from '@/lib/usePageSettings'
 
 const faqCategories = [
   {
-    title: 'General Information',
-    subtitle: 'Foundational questions about legitimacy & structure',
-    icon: Heart,
+    title: 'Frequently Asked Questions',
+    subtitle: 'Official information about Miss Culture Global Kenya',
+    icon: HelpCircle,
     color: 'bg-green-50 text-green-600 border-green-100',
     faqs: [
-      {
-        question: 'What is Miss Culture Global Kenya?',
-        answer: 'Miss Culture Global Kenya is a cultural preservation movement, a youth empowerment platform, and Kenya\'s voice in a global conversation spanning 50+ nations. It is not just a pageant — it is a cultural diplomacy platform that transforms heritage into a global asset for socio-economic empowerment.'
-      },
-      {
-        question: 'How are you connected to Miss Culture Global?',
-        answer: 'Miss Culture Global Kenya operates as the Kenyan franchise of Miss Culture Global, the international cultural diplomacy platform. We share a unified mission: to transform cultural heritage into a global asset for socio-economic empowerment and international diplomacy.'
-      },
-      {
-        question: 'When was this started?',
-        answer: 'Miss Culture Global Kenya was established in 2025 with the vision to celebrate and preserve Kenya\'s rich cultural heritage while promoting it globally. Since then, we\'ve grown to impact 100+ communities across Kenya.'
-      },
-      {
-        question: 'Is this a nonprofit?',
-        answer: 'Yes, Miss Culture Global Kenya is a registered non-profit organization. All funds raised go directly toward our cultural preservation, youth empowerment, and community development programs.'
-      }
-    ]
-  },
-  {
-    title: 'Participation & Events',
-    subtitle: 'Action-oriented questions from participants',
-    icon: Calendar,
-    color: 'bg-red-50 text-red-600 border-red-100',
-    faqs: [
-      {
-        question: 'How do I enter the pageant?',
-        answer: 'Applications open every January. To enter, you must be: aged 18–30 years; a Kenyan citizen by birth or registration; holding a valid Kenyan ID and passport; unmarried (with or without kids); and of all shapes and sizes. A passion for cultural preservation is what unites every contestant.'
-      },
-      {
-        question: 'What are the age requirements?',
-        answer: 'The main pageant is for adults aged 18-28. Our Junior Cultural Ambassador program is for teens aged 13-17. We also have programs for children under 13 focused on cultural education rather than competition.'
-      },
-      {
-        question: 'What do events cost?',
-        answer: 'Event costs vary. Many of our community events are free to attend. Our major pageant events have ticket categories ranging from General Admission (free or low-cost) to VIP Experience (KSh 2,000+). Check individual event pages for details.'
-      },
-      {
-        question: 'Can I attend virtually?',
-        answer: 'Select events offer live-streaming options. Follow our social media channels for virtual event announcements. We\'re working toward making all major events accessible online.'
-      },
-      {
-        question: 'How is voting done?',
-        answer: 'Voting is done through our website using M-Pesa. Each vote has a set price (varies by event). You can vote as many times as you like — your votes are counted immediately after payment confirmation. Live vote counts may be displayed depending on the event\'s visibility settings.'
-      }
-    ]
-  },
-  {
-    title: 'Community Involvement',
-    subtitle: 'Questions from non-financial supporters',
-    icon: Users,
-    color: 'bg-blue-50 text-blue-600 border-blue-100',
-    faqs: [
-      {
-        question: 'How can I volunteer?',
-        answer: 'We welcome volunteers for events, community programs, and administrative support. Volunteer roles range from event coordination to cultural research to social media management.'
-      },
-      {
-        question: 'Do you have student programs?',
-        answer: 'Yes! We offer cultural education programs for schools and universities, including workshops, mentorship sessions, and scholarship opportunities for students interested in cultural studies.'
-      },
-      {
-        question: 'Can schools partner with you?',
-        answer: 'Absolutely. We actively collaborate with educational institutions to promote cultural education among youth. We offer tailored school programs, workshops, and cultural exchange opportunities.'
-      },
-      {
-        question: 'How do I nominate someone?',
-        answer: 'You can nominate potential contestants, volunteers, or community leaders through our contact form. Select "General Inquiry" and include the nominee\'s name, background, and why they would be a great fit.'
-      }
-    ]
-  },
-  {
-    title: 'Support & Partnerships',
-    subtitle: 'Financial & business questions',
-    icon: Globe,
-    color: 'bg-yellow-50 text-yellow-600 border-yellow-100',
-    faqs: [
-      {
-        question: 'How do I become a sponsor?',
-        answer: 'We offer three partnership tiers: Event Sponsorship (KES 50K-500K), Program Support (KES 500K-2M annually), and Global Outreach Partnership (KES 2M+). Each tier offers different levels of visibility, impact, and engagement.'
-      },
-      {
-        question: 'Are donations tax-deductible?',
-        answer: 'Yes. We\'re registered as a nonprofit organization in Kenya, so contributions are tax-deductible under Kenyan law. Contact us for an official receipt for your tax records.'
-      },
-      {
-        question: 'Can individuals donate?',
-        answer: 'Absolutely. Individual donations of any amount are welcome. You can contribute securely via M-Pesa. Suggested amounts start at KES 500.'
-      },
-      {
-        question: 'What are the partnership requirements?',
-        answer: 'We partner with organizations that share our values of cultural preservation, youth empowerment, and community development. No specific requirements beyond alignment with our mission and a commitment to making a positive impact.'
-      }
-    ]
+      ['What is Miss Culture Global Kenya?', 'Miss Culture Global Kenya (MCGK) is a national female-led model award and pageantry programme that provides a platform for young Kenyan women to showcase their beauty, talent, confidence, leadership, cultural identity and commitment to community development.'],
+      ['Is Miss Culture Global Kenya a beauty pageant?', 'Yes. However, MCGK goes beyond physical beauty. The programme focuses on modelling, confidence, talent, culture, leadership, etiquette, personal development and community service.'],
+      ['Who is eligible to participate?', 'The programme is open to Kenyan women aged 18–30 years who are unmarried, including women with or without children, subject to the official eligibility requirements for the particular competition year.'],
+      ['Is Miss Culture Global Kenya only for professional models?', 'No. Previous modelling experience is not necessarily required. The programme welcomes women who demonstrate confidence, potential, talent, commitment and willingness to learn and develop.'],
+      ['Is Miss Culture Global Kenya female-led?', 'Yes. Miss Culture Global Kenya is a female-led institution and a female-only model award and pageantry programme, created to provide opportunities for women to develop and showcase their abilities.'],
+      ['Who manages Miss Culture Global Kenya in Kenya?', 'The Miss Culture Global Kenya programmes are managed nationally by The MissComm EVENTS, a youth- and women-led organisation that serves as the official managing agency.'],
+      ['Who is the National Managing Director?', 'The National Managing Director of Miss Culture Global Kenya is M/s. Awuor Pacific.'],
+      ['Who is the current Reigning Queen?', "The current reigning Queen is Miss Susan Abong'o – Miss Culture Global Kenya 2025–2026."],
+      ['Who is the major sponsor?', 'The current major financial sponsor of Miss Culture Global Kenya is The MissComm EVENTS, which is also the national managing agency.'],
+      ['Who are the current major sponsors of the 2026 Grand Finale?', 'The Village Market Management is the major in-kind sponsor, The MissComm Events, Citicasts, R_Empire, and Timz vintage Find, supporting the 2026 Grand Finale.'],
+      ['What is the relationship between MissComm EVENTS and Miss Culture Global Kenya?', 'The MissComm EVENTS is the official managing agency of Miss Culture Global Kenya in Kenya, providing programme management, coordination, financial support, partnerships, training and operational support.'],
+      ['Is Miss Culture Global Kenya affiliated with Miss Culture Global International?', 'Yes. Miss Culture Global Kenya operates as a franchise of Miss Culture Global International, an international pageantry organisation headquartered in South Africa and founded in 2020 by Miss Lorraine Shaquan Kijajic.'],
+      ['What opportunities does the winner receive?', "The national winner becomes Miss Culture Global Kenya and may receive opportunities to represent Kenya internationally, participate in cultural and community initiatives, access mentorship and training, and engage in national and international promotional activities, subject to the programme's terms."],
+      ['What does Miss Culture Global Kenya promote?', 'MCGK promotes Kenyan culture and heritage, women’s empowerment, leadership, confidence, modelling, talent, personal development, community service, cultural exchange and international representation.'],
+      ['What does “Culture” mean in Miss Culture Global Kenya?', 'Culture is at the heart of the programme. Contestants are encouraged to learn, preserve and promote their heritage, including language, food, music, dance, names, dress, customs, ceremonies and other cultural practices.'],
+      ['Are contestants expected to participate in community service?', 'Yes. Contestants are encouraged to undertake meaningful community and CSR activities within their counties and communities.'],
+      ['What training do contestants receive?', 'Depending on the programme schedule, contestants may receive training in modelling, runway walking, pageantry, public speaking, etiquette, cultural awareness, personal branding, leadership, community engagement and stage performance.'],
+      ['When and where is the 2026 Grand Finale?', 'The Miss Culture Global Kenya 2026 Grand Finale is scheduled for 7th November 2026 at The Village Market, Nairobi.'],
+      ['How can an organisation become a sponsor or partner?', 'Organisations, corporates, institutions and individuals can contact us to explore financial sponsorship, in-kind support, media partnerships, branding, travel, accommodation, training, gift hampers and other strategic collaborations.'],
+      ['Does Miss Culture Global Kenya offer training outside the pageant?', 'Yes. Through The MissComm EVENTS, programmes may include modelling, dancing, pageantry, etiquette, stage presentation, school-based CBC/CBE training, weekend programmes and holiday training programmes.']
+    ].map(([question, answer]) => ({ question, answer }))
   }
 ]
 

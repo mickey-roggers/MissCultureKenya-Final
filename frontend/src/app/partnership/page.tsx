@@ -50,6 +50,8 @@ const PartnershipPage = () => {
         setSponsors(partnersData.map((partner: any) => ({
           name: partner.name,
           logo: partner.logo_url || partner.logo || '',
+          partner_type: partner.partner_type || 'partner',
+          display_order: partner.display_order ?? 0,
           description: partner.description || `Supporting ${partner.partner_type || 'our mission'}`,
           since: partner.since || 'Partner',
           website_url: partner.website_url || ''
@@ -161,14 +163,14 @@ const PartnershipPage = () => {
           >
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                Our Valued <span className="text-red-600">Partners</span>
+                Our Valued <span className="text-red-600">Partners & Sponsors</span>
               </h2>
               <p className="text-xl text-green-100 max-w-3xl mx-auto font-light leading-relaxed">
                 These brands have already chosen to align with heritage, purpose, and global reach. Join them.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="space-y-14">
               {loading ? (
                 <div className="col-span-full text-center py-12">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
@@ -180,7 +182,16 @@ const PartnershipPage = () => {
                   <p className="text-green-200/60 text-sm mt-2">Be the first to partner with us!</p>
                 </div>
               ) : (
-                sponsors.map((sponsor, index) => {
+                (['partner', 'sponsor'] as const).map((partnerType) => {
+                  const group = sponsors.filter((sponsor) => partnerType === 'partner' ? sponsor.partner_type !== 'sponsor' : sponsor.partner_type === 'sponsor')
+                  if (group.length === 0) return null
+
+                  const groupTitle = partnerType === 'partner' ? 'Our Partners' : 'Our Sponsors'
+                  return (
+                    <div key={partnerType}>
+                      <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">{groupTitle}</h3>
+                      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {group.map((sponsor, index) => {
                   const cardInner = (
                     <>
                       <div className="mb-4 h-28 flex items-center justify-center bg-white rounded-xl p-1 group-hover:scale-105 transition-transform duration-300 shadow-lg">
@@ -227,6 +238,10 @@ const PartnershipPage = () => {
                         </div>
                       )}
                     </motion.div>
+                  )
+                        })}
+                      </div>
+                    </div>
                   )
                 })
               )}

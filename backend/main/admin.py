@@ -78,10 +78,10 @@ class KenyaGalleryPhotoAdmin(admin.ModelAdmin):
 
 @admin.register(Partner)
 class PartnerAdmin(admin.ModelAdmin):
-    list_display = ['name', 'partner_type', 'featured', 'created_at']
+    list_display = ['name', 'partner_type', 'display_order', 'featured', 'created_at']
     list_filter = ['partner_type', 'featured', 'created_at']
     search_fields = ['name', 'description']
-    list_editable = ['featured']
+    list_editable = ['partner_type', 'display_order', 'featured']
 
 
 @admin.register(TeamMember)

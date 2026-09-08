@@ -152,13 +152,14 @@ class Partner(models.Model):
         ('partner', 'Partner'),
         ('supporter', 'Supporter'),
     ])
+    display_order = models.PositiveIntegerField(default=0, help_text='Lower numbers appear first within each logo group.')
     featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = "Partnership - Partner/Sponsor"
         verbose_name_plural = "Partnership - Partners/Sponsors"
-        ordering = ['-featured', '-created_at']
+        ordering = ['partner_type', 'display_order', '-featured', 'name']
 
     def __str__(self):
         return self.name

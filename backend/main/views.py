@@ -44,7 +44,7 @@ class CulturalCommunityViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['region', 'featured']
     search_fields = ['name', 'description']
-    ordering_fields = ['name', 'created_at']
+    ordering_fields = ['partner_type', 'display_order', 'name', 'created_at']
 
 
 class CulturalHeritageViewSet(viewsets.ReadOnlyModelViewSet):
