@@ -11,7 +11,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from django.conf import settings
 from django.core.mail import send_mail
-from django.db.models import Sum, F, Q
+from django.db.models import Sum, F, Q, Value
+from django.db.models.functions import Coalesce
 
 from .models import (
     Event, EventCategory,
@@ -262,9 +263,16 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
         contestants = Contestant.objects.filter(
             event=event, is_active=True
         ).annotate(
-            vote_count_annotated=Sum(
-                'vote_transactions__vote_count',
-                filter=Q(vote_transactions__status='successful')
+            # Sum returns NULL for contestants with no successful votes; Coalesce
+            # to 0 so ordering by -vote_count_annotated puts the highest votes
+            # first and zero-vote contestants last (Postgres would otherwise rank
+            # NULLs at the top of a DESC sort).
+            vote_count_annotated=Coalesce(
+                Sum(
+                    'vote_transactions__vote_count',
+                    filter=Q(vote_transactions__status='successful')
+                ),
+                Value(0),
             )
         ).order_by('-vote_count_annotated')
 
