@@ -7,6 +7,7 @@ import Link from 'next/link'
 import apiClient from '@/lib/api'
 import type { ApiError } from '@/lib/api'
 import VotePaymentModal from '@/components/VotePaymentModal'
+import VotingCountdown from '@/components/VotingCountdown'
 
 interface ContestantData {
   id: number
@@ -33,6 +34,8 @@ interface EventData {
   till_number: string
   is_voting_active: boolean
   result_visibility: string
+  voting_start: string | null
+  voting_end: string | null
 }
 
 export default function ContestantPage({ params }: { params: Promise<{ eventSlug: string; contestantSlug: string }> }) {
@@ -62,6 +65,8 @@ export default function ContestantPage({ params }: { params: Promise<{ eventSlug
             till_number: matchedEvent.till_number || '4766976',
             is_voting_active: matchedEvent.is_voting_active,
             result_visibility: matchedEvent.result_visibility || 'full_live',
+            voting_start: matchedEvent.voting_start ?? null,
+            voting_end: matchedEvent.voting_end ?? null,
           })
 
           const contestantsData = await apiClient.getEventContestants(matchedEvent.id)
@@ -260,6 +265,16 @@ export default function ContestantPage({ params }: { params: Promise<{ eventSlug
                       Vote price: <span className="font-bold text-gray-900">KES {event.vote_price}</span> per vote
                     </p>
                   </div>
+                )}
+
+                {/* Voting countdown — days remaining until voting closes */}
+                {event && (
+                  <VotingCountdown
+                    endDate={event.voting_end}
+                    startDate={event.voting_start}
+                    isVotingActive={event.is_voting_active}
+                    className="mb-6"
+                  />
                 )}
               </div>
 

@@ -11,6 +11,7 @@ import VotePaymentModal from '@/components/VotePaymentModal'
 import ContestantDetailsModal from '@/components/ContestantDetailsModal'
 import { useVotingPageSettings } from '@/lib/usePageSettings'
 import { formatEventTime } from '@/lib/eventDate'
+import VotingCountdown from '@/components/VotingCountdown'
 
 interface Contestant {
   id: number
@@ -36,6 +37,8 @@ interface VotingEvent {
   featured_image_url: string | null
   voting_enabled: boolean
   vote_price: number
+  voting_start: string | null
+  voting_end: string | null
   is_voting_active: boolean
   result_visibility: string
   contestant_count: number
@@ -331,6 +334,14 @@ const VotingPage = () => {
                       )}
                     </div>
                   </div>
+
+                  {/* Voting countdown — days remaining until voting closes */}
+                  <VotingCountdown
+                    endDate={selectedEvent.voting_end}
+                    startDate={selectedEvent.voting_start}
+                    isVotingActive={selectedEvent.is_voting_active}
+                    className="mt-5"
+                  />
                 </div>
               </div>
             </section>
