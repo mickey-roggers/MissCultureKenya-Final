@@ -12,24 +12,34 @@ def _cloudinary_url(field_value, resource_type='image', width=None, height=None,
     if not field_value:
         return None
     url = str(field_value)
-    if url.startswith(('http://', 'https://')):
-        return url
-    
-    # Build transformation parameters with optimization
-    transformation = [
-        {'fetch_format': 'auto', 'quality': 'auto'},  # f_auto, q_auto
-    ]
-    
+
+    transformation = {
+        'fetch_format': 'auto',
+        'quality': 'auto:eco',
+    }
     if width:
-        transformation[0]['width'] = width
+        transformation['width'] = width
     if height:
-        transformation[0]['height'] = height
+        transformation['height'] = height
     if crop:
-        transformation[0]['crop'] = crop
+        transformation['crop'] = crop
+
+    if url.startswith(('http://', 'https://')):
+        if 'res.cloudinary.com' in url and '/upload/' in url:
+            parts = []
+            if crop:
+                parts.append(f'c_{crop}')
+            if width:
+                parts.append(f'w_{width}')
+            if height:
+                parts.append(f'h_{height}')
+            parts.extend(['f_auto', 'q_auto:eco'])
+            return url.replace('/upload/', f"/upload/{','.join(parts)}/", 1)
+        return url
     
     return cloudinary.CloudinaryResource(
         url, default_resource_type=resource_type
-    ).build_url(transformation=transformation)
+    ).build_url(transformation=[transformation])
 
 
 # ── Event ────────────────────────────────────────────────────────────────────
@@ -143,7 +153,7 @@ class ContestantSerializer(serializers.ModelSerializer):
     contestant_category_name = serializers.CharField(source='contestant_category.name', read_only=True, default=None)
 
     def get_photo_url(self, obj):
-        return _cloudinary_url(obj.photo)
+        return _cloudinary_url(obj.photo, width=900, height=1200, crop='fill')
 
     def get_vote_count(self, obj):
         # Respect event.result_visibility so hidden/rankings_only/no_public don't leak totals
@@ -175,7 +185,7 @@ class ContestantPublicSerializer(serializers.ModelSerializer):
     contestant_category_name = serializers.CharField(source='contestant_category.name', read_only=True, default=None)
 
     def get_photo_url(self, obj):
-        return _cloudinary_url(obj.photo)
+        return _cloudinary_url(obj.photo, width=900, height=1200, crop='fill')
 
     def get_vote_count(self, obj):
         event = obj.event
@@ -458,5 +468,4 @@ class ContributionSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at',
         ]
         read_only_fields = fields
-
 

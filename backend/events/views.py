@@ -284,7 +284,7 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
                 'contestant_name': c.name,
                 'contestant_number': c.contestant_number,
                 'slug': c.slug,
-                'photo_url': _cloudinary_url(c.photo),
+                'photo_url': _cloudinary_url(c.photo, width=160, height=160, crop='fill'),
             }
 
             if visibility in ('full_live',):
@@ -1585,14 +1585,37 @@ def mpesa_callback(request):
 
 # ── Helper ───────────────────────────────────────────────────────────────────
 
-def _cloudinary_url(field_value, resource_type='image'):
+def _cloudinary_url(field_value, resource_type='image', width=None, height=None, crop=None):
     import cloudinary as cd
     if not field_value:
         return None
     url = str(field_value)
+    transformation = {
+        'fetch_format': 'auto',
+        'quality': 'auto:eco',
+    }
+    if width:
+        transformation['width'] = width
+    if height:
+        transformation['height'] = height
+    if crop:
+        transformation['crop'] = crop
+
     if url.startswith(('http://', 'https://')):
+        if 'res.cloudinary.com' in url and '/upload/' in url:
+            parts = []
+            if crop:
+                parts.append(f'c_{crop}')
+            if width:
+                parts.append(f'w_{width}')
+            if height:
+                parts.append(f'h_{height}')
+            parts.extend(['f_auto', 'q_auto:eco'])
+            return url.replace('/upload/', f"/upload/{','.join(parts)}/", 1)
         return url
-    return cd.CloudinaryResource(url, default_resource_type=resource_type).build_url()
+    return cd.CloudinaryResource(
+        url, default_resource_type=resource_type
+    ).build_url(transformation=[transformation])
 
 
 # ── PesaPal IPN + Redirect ────────────────────────────────────────────────────
