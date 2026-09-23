@@ -248,8 +248,7 @@ class Command(BaseCommand):
                             self.stdout.write(f"  {raw_value}")
                             self.stdout.write(f"  -> {repaired_url}")
                             if commit:
-                                setattr(obj, ref.field.name, repaired_url)
-                                obj.save(update_fields=[ref.field.name])
+                                self._update_field(ref, obj.pk, repaired_url)
                                 updated += 1
                         else:
                             skipped += 1
@@ -295,8 +294,7 @@ class Command(BaseCommand):
                             )
                             uploaded += 1
 
-                        setattr(obj, ref.field.name, dest)
-                        obj.save(update_fields=[ref.field.name])
+                        self._update_field(ref, obj.pk, dest)
                         updated += 1
                 except Exception as exc:
                     failed += 1
@@ -353,6 +351,12 @@ class Command(BaseCommand):
             return True
         except Exception:
             return False
+
+    def _update_field(self, ref: MediaFieldRef, pk, value: str):
+        # CloudinaryField normalizes assigned values during model save, which can
+        # strip extensions from external R2 URLs. QuerySet.update writes the exact
+        # public URL string we want the frontend serializers to return.
+        ref.model.objects.filter(pk=pk).update(**{ref.field.name: value})
 
     def _summary(self, processed: int, uploaded: int, updated: int, skipped: int, failed: int):
         self.stdout.write("")
