@@ -22,7 +22,7 @@ const faqCategories = [
       ['Who is the National Managing Director?', 'The National Managing Director of Miss Culture Global Kenya is M/s. Awuor Pacific.'],
       ['Who is the current Reigning Queen?', "The current reigning Queen is Miss Susan Abong'o – Miss Culture Global Kenya 2025–2026."],
       ['Who is the major sponsor?', 'The current major financial sponsor of Miss Culture Global Kenya is The MissComm EVENTS, which is also the national managing agency.'],
-      ['Who are the current major sponsors of the 2026 Grand Finale?', 'The Village Market Management is the major in-kind sponsor, The MissComm Events, Citicasts, R_Empire, and Timz vintage Find, supporting the 2026 Grand Finale.'],
+      ['Who are the current major sponsors of the 2026 Grand Finale?', 'The MissComm Events, Citicasts, R_Empire, and Timz vintage Find support the 2026 Grand Finale.'],
       ['What is the relationship between MissComm EVENTS and Miss Culture Global Kenya?', 'The MissComm EVENTS is the official managing agency of Miss Culture Global Kenya in Kenya, providing programme management, coordination, financial support, partnerships, training and operational support.'],
       ['Is Miss Culture Global Kenya affiliated with Miss Culture Global International?', 'Yes. Miss Culture Global Kenya operates as a franchise of Miss Culture Global International, an international pageantry organisation headquartered in South Africa and founded in 2020 by Miss Lorraine Shaquan Kijajic.'],
       ['What opportunities does the winner receive?', "The national winner becomes Miss Culture Global Kenya and may receive opportunities to represent Kenya internationally, participate in cultural and community initiatives, access mentorship and training, and engage in national and international promotional activities, subject to the programme's terms."],
@@ -30,7 +30,7 @@ const faqCategories = [
       ['What does “Culture” mean in Miss Culture Global Kenya?', 'Culture is at the heart of the programme. Contestants are encouraged to learn, preserve and promote their heritage, including language, food, music, dance, names, dress, customs, ceremonies and other cultural practices.'],
       ['Are contestants expected to participate in community service?', 'Yes. Contestants are encouraged to undertake meaningful community and CSR activities within their counties and communities.'],
       ['What training do contestants receive?', 'Depending on the programme schedule, contestants may receive training in modelling, runway walking, pageantry, public speaking, etiquette, cultural awareness, personal branding, leadership, community engagement and stage performance.'],
-      ['When and where is the 2026 Grand Finale?', 'The Miss Culture Global Kenya 2026 Grand Finale is scheduled for 7th November 2026 at The Village Market, Nairobi.'],
+      ['When and where is the 2026 Grand Finale?', 'The Miss Culture Global Kenya 2026 Grand Finale is scheduled for 7th November 2026 in Nairobi.'],
       ['How can an organisation become a sponsor or partner?', 'Organisations, corporates, institutions and individuals can contact us to explore financial sponsorship, in-kind support, media partnerships, branding, travel, accommodation, training, gift hampers and other strategic collaborations.'],
       ['Does Miss Culture Global Kenya offer training outside the pageant?', 'Yes. Through The MissComm EVENTS, programmes may include modelling, dancing, pageantry, etiquette, stage presentation, school-based CBC/CBE training, weekend programmes and holiday training programmes.']
     ].map(([question, answer]) => ({ question, answer }))
@@ -200,3 +200,4 @@ const FAQPage = () => {
 }
 
 export default FAQPage
+
