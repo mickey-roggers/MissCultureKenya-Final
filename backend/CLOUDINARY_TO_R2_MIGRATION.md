@@ -58,6 +58,21 @@ Useful narrower command:
 python manage.py migrate_cloudinary_to_r2 --commit --only-model gallery.Photo
 ```
 
+## Repair already-migrated R2 URLs
+
+If an early migration saved a public URL without the extension but the R2 object
+exists with an extension such as `.bin`, `.jpg`, or `.webp`, run:
+
+```bash
+python manage.py migrate_cloudinary_to_r2 --repair-r2-urls
+```
+
+If the dry run shows the correct replacements, commit them:
+
+```bash
+python manage.py migrate_cloudinary_to_r2 --repair-r2-urls --commit
+```
+
 ## What it migrates
 
 The command scans every Django model field that uses `CloudinaryField`, including:
