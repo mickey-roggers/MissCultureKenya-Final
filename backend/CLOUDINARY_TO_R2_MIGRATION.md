@@ -1,5 +1,9 @@
 # Cloudinary to Cloudflare R2 migration
 
+This command applies to the earlier `CloudinaryField` schema. After the R2
+admin-upload migrations (`events.0027`, `gallery.0005`, `main.0022`), it no
+longer finds those fields. To replace images now, upload them in Django admin.
+
 This backend includes a Django management command that copies existing
 Cloudinary media references to Cloudflare R2 and updates the database fields to
 public R2 URLs.
@@ -94,5 +98,7 @@ The serializers now pass external R2 URLs through unchanged. Gallery thumbnail
 fields also avoid Cloudinary transformations when the stored media value is an
 external URL.
 
-New admin uploads still use the current Cloudinary storage backend until the
-project is switched to an R2 storage backend.
+New admin uploads use Cloudflare R2 when the backend has the five `R2_*`
+variables above in Railway. `R2_KEY_PREFIX` is only used by the older copy
+command; new admin uploads are stored under `r2/missculture/`.
+
