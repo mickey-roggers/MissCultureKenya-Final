@@ -28,6 +28,15 @@ def _cloudinary_url(field_value, resource_type='image', width=None, height=None,
     ).build_url(transformation=transformation)
 
 
+def _direct_url_if_external(field_value):
+    if not field_value:
+        return None
+    url = str(field_value)
+    if url.startswith(('http://', 'https://')):
+        return url
+    return None
+
+
 class PhotoCollectionSerializer(serializers.ModelSerializer):
     cover_image_url = serializers.SerializerMethodField()
 
@@ -48,6 +57,10 @@ class PhotoSerializer(serializers.ModelSerializer):
         return _cloudinary_url(obj.image)
 
     def get_thumbnail_url(self, obj):
+        direct_url = _direct_url_if_external(obj.thumbnail or obj.image)
+        if direct_url:
+            return direct_url
+
         # Generate optimized thumbnail with f_auto, q_auto
         if obj.image:
             return cloudinary.CloudinaryResource(
@@ -65,6 +78,10 @@ class PhotoSerializer(serializers.ModelSerializer):
     
     def get_small_thumbnail_url(self, obj):
         """Generate a small 200x150 thumbnail for grid layouts."""
+        direct_url = _direct_url_if_external(obj.thumbnail or obj.image)
+        if direct_url:
+            return direct_url
+
         if obj.image:
             return cloudinary.CloudinaryResource(
                 str(obj.image), default_resource_type='image'
@@ -99,6 +116,10 @@ class VideoSerializer(serializers.ModelSerializer):
         return _cloudinary_url(obj.video_file, resource_type='video')
 
     def get_thumbnail_url(self, obj):
+        direct_url = _direct_url_if_external(obj.thumbnail)
+        if direct_url:
+            return direct_url
+
         # Auto-generate an optimized thumbnail from the video
         if obj.video_file:
             return cloudinary.CloudinaryResource(
