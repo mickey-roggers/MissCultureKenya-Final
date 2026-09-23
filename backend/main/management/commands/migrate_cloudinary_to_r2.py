@@ -22,6 +22,25 @@ except ImportError:  # pragma: no cover - reported clearly at runtime
 
 
 CLOUDINARY_HOST = "res.cloudinary.com"
+REPAIR_EXTENSIONS = (
+    ".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg", ".avif",
+    ".mp4", ".mov", ".webm", ".mp3", ".wav", ".pdf", ".bin",
+)
+CONTENT_TYPE_EXTENSIONS = {
+    "image/jpeg": ".jpg",
+    "image/jpg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+    "image/gif": ".gif",
+    "image/svg+xml": ".svg",
+    "image/avif": ".avif",
+    "video/mp4": ".mp4",
+    "video/quicktime": ".mov",
+    "video/webm": ".webm",
+    "audio/mpeg": ".mp3",
+    "audio/wav": ".wav",
+    "application/pdf": ".pdf",
+}
 
 
 @dataclass
@@ -65,13 +84,34 @@ def source_url(value: str, resource_type: str) -> str:
     ).build_url(secure=True, resource_type=resource_type)
 
 
-def extension_from_response(url: str, content_type: str | None, fallback: str) -> str:
+def extension_from_response(url: str, content_type: str | None, fallback: str, content: bytes) -> str:
     path_ext = os.path.splitext(urlparse(url).path)[1]
     if path_ext and len(path_ext) <= 8:
         return path_ext
-    guessed = mimetypes.guess_extension((content_type or "").split(";")[0].strip())
+
+    clean_type = (content_type or "").split(";")[0].strip().lower()
+    if clean_type in CONTENT_TYPE_EXTENSIONS:
+        return CONTENT_TYPE_EXTENSIONS[clean_type]
+
+    guessed = mimetypes.guess_extension(clean_type)
     if guessed:
         return guessed
+
+    # Cloudinary public IDs often have no extension. If the server gives a weak
+    # content type, sniff the bytes so the database URL matches the R2 object key.
+    if content.startswith(b"\xff\xd8\xff"):
+        return ".jpg"
+    if content.startswith(b"\x89PNG\r\n\x1a\n"):
+        return ".png"
+    if content.startswith(b"RIFF") and content[8:12] == b"WEBP":
+        return ".webp"
+    if content.startswith((b"GIF87a", b"GIF89a")):
+        return ".gif"
+    if content.startswith(b"%PDF"):
+        return ".pdf"
+    if len(content) > 12 and content[4:8] == b"ftyp":
+        return ".mp4"
+
     fallback_ext = os.path.splitext(fallback)[1]
     return fallback_ext if fallback_ext else ".bin"
 
@@ -113,12 +153,21 @@ class Command(BaseCommand):
             default=os.environ.get("R2_KEY_PREFIX", "missculture"),
             help="R2 object key prefix. Defaults to R2_KEY_PREFIX or 'missculture'.",
         )
+        parser.add_argument(
+            "--repair-r2-urls",
+            action="store_true",
+            help=(
+                "Repair existing R2 public URLs saved without a file extension. "
+                "No Cloudinary download or R2 upload is performed."
+            ),
+        )
 
     def handle(self, *args, **options):
         commit = options["commit"]
         limit = options["limit"]
         only_model = options["only_model"].lower().strip()
         prefix = clean_prefix(options["prefix"])
+        repair_r2_urls = options["repair_r2_urls"]
 
         bucket = os.environ.get("R2_BUCKET_NAME", "").strip()
         endpoint_url = os.environ.get("R2_ENDPOINT_URL", "").strip()
@@ -126,7 +175,7 @@ class Command(BaseCommand):
         secret_key = os.environ.get("R2_SECRET_ACCESS_KEY", "").strip()
         public_base = os.environ.get("R2_PUBLIC_BASE_URL", "").strip()
 
-        if commit:
+        if commit and not repair_r2_urls:
             missing = [
                 name for name, value in (
                     ("R2_BUCKET_NAME", bucket),
@@ -151,7 +200,18 @@ class Command(BaseCommand):
         else:
             s3 = None
 
-        self.stdout.write(self.style.WARNING("DRY RUN: no uploads or database updates") if not commit else self.style.SUCCESS("COMMIT: uploading and updating rows"))
+        if repair_r2_urls:
+            self.stdout.write(
+                self.style.WARNING("DRY RUN: no database updates")
+                if not commit else
+                self.style.SUCCESS("COMMIT: repairing existing R2 URLs")
+            )
+        else:
+            self.stdout.write(
+                self.style.WARNING("DRY RUN: no uploads or database updates")
+                if not commit else
+                self.style.SUCCESS("COMMIT: uploading and updating rows")
+            )
 
         processed = 0
         uploaded = 0
@@ -169,6 +229,35 @@ class Command(BaseCommand):
                 raw_value = str(getattr(obj, ref.field.name) or "").strip()
                 if not raw_value:
                     continue
+
+                if repair_r2_urls:
+                    if not public_base or not raw_value.startswith(public_base.rstrip("/") + "/"):
+                        skipped += 1
+                        continue
+
+                    processed += 1
+                    if limit and processed > limit:
+                        self.stdout.write(self.style.WARNING(f"Limit reached: {limit} asset(s)."))
+                        self._summary(processed - 1, uploaded, updated, skipped, failed)
+                        return
+
+                    try:
+                        repaired_url = self._repair_public_url(raw_value)
+                        if repaired_url and repaired_url != raw_value:
+                            self.stdout.write(f"{model_label}#{obj.pk}.{ref.field.name}")
+                            self.stdout.write(f"  {raw_value}")
+                            self.stdout.write(f"  -> {repaired_url}")
+                            if commit:
+                                setattr(obj, ref.field.name, repaired_url)
+                                obj.save(update_fields=[ref.field.name])
+                                updated += 1
+                        else:
+                            skipped += 1
+                    except Exception as exc:
+                        failed += 1
+                        self.stderr.write(self.style.ERROR(f"Failed repairing {model_label}#{obj.pk}.{ref.field.name}: {exc}"))
+                    continue
+
                 if raw_value.startswith(("http://", "https://")) and not is_cloudinary_url(raw_value):
                     skipped += 1
                     continue
@@ -223,7 +312,7 @@ class Command(BaseCommand):
         digest = hashlib.sha256(content).hexdigest()[:12]
 
         basename = sanitize_key_part(posixpath.basename(urlparse(src).path) or raw_value)
-        ext = extension_from_response(src, content_type, basename)
+        ext = extension_from_response(src, content_type, basename, content)
         stem = sanitize_key_part(os.path.splitext(basename)[0])
         app_label = sanitize_key_part(ref.model._meta.app_label)
         model_name = sanitize_key_part(ref.model.__name__.lower())
@@ -232,6 +321,31 @@ class Command(BaseCommand):
 
         key_parts = [part for part in (prefix, app_label, model_name, field_name, pk, f"{stem}-{digest}{ext}") if part]
         return "/".join(key_parts), content, content_type
+
+    def _repair_public_url(self, url: str) -> str | None:
+        if os.path.splitext(urlparse(url).path)[1]:
+            if self._url_exists(url):
+                return None
+            base, _ = os.path.splitext(url)
+            candidates = [f"{base}{ext}" for ext in REPAIR_EXTENSIONS]
+        else:
+            if self._url_exists(url):
+                return None
+            candidates = [f"{url}{ext}" for ext in REPAIR_EXTENSIONS]
+
+        for candidate in candidates:
+            if self._url_exists(candidate):
+                return candidate
+        return None
+
+    def _url_exists(self, url: str) -> bool:
+        try:
+            response = requests.head(url, timeout=20, allow_redirects=True)
+            if response.status_code == 405:
+                response = requests.get(url, timeout=20, stream=True)
+            return 200 <= response.status_code < 300
+        except Exception:
+            return False
 
     def _exists(self, s3, bucket: str, key: str) -> bool:
         try:
