@@ -17,6 +17,8 @@ def _cloudinary_url(field_value, resource_type='image', width=None, height=None,
     url = str(field_value)
     if url.startswith(('http://', 'https://')):
         return url
+    if url.startswith('r2/'):
+        return field_value.url
     
     # Build transformation parameters
     transformation = [
@@ -416,3 +418,4 @@ class TermsPageSettingsSerializer(serializers.ModelSerializer):
     
     def get_hero_image_url(self, obj):
         return _cloudinary_url(obj.hero_image)
+

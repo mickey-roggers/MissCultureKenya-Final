@@ -1590,6 +1590,8 @@ def _cloudinary_url(field_value, resource_type='image', width=None, height=None,
     if not field_value:
         return None
     url = str(field_value)
+    if url.startswith('r2/'):
+        return field_value.url
     transformation = {
         'fetch_format': 'auto',
         'quality': 'auto:eco',
@@ -1837,3 +1839,4 @@ def pesapal_payment_redirect(request):
         elif payment.payment_purpose == 'ticket':
             return dj_redirect(f'{frontend_url}/events/{payment.event_id}/checkout/success?payment=failed')
     return dj_redirect(f'{frontend_url}/contribute?payment=failed')
+

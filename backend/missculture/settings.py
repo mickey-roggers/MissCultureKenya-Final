@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from urllib.parse import urlparse
 from decouple import config
 import cloudinary
 import dj_database_url
@@ -250,12 +251,35 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STORAGES = {
     'default': {
-        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
+        'BACKEND': 'storages.backends.s3.S3Storage',
+        'OPTIONS': {
+            'bucket_name': config('R2_BUCKET_NAME', default=''),
+            'endpoint_url': config('R2_ENDPOINT_URL', default=''),
+            'access_key': config('R2_ACCESS_KEY_ID', default=''),
+            'secret_key': config('R2_SECRET_ACCESS_KEY', default=''),
+            'region_name': 'auto',
+            'custom_domain': urlparse(config('R2_PUBLIC_BASE_URL', default='')).netloc,
+            'querystring_auth': False,
+            'file_overwrite': False,
+            'default_acl': None,
+        },
     },
     'staticfiles': {
         'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
     },
 }
+
+if not DEBUG:
+    missing_r2_settings = [
+        name for name in (
+            'R2_BUCKET_NAME', 'R2_ENDPOINT_URL', 'R2_ACCESS_KEY_ID',
+            'R2_SECRET_ACCESS_KEY', 'R2_PUBLIC_BASE_URL',
+        ) if not config(name, default='')
+    ]
+    if missing_r2_settings:
+        raise ImproperlyConfigured(
+            'Missing R2 media settings: ' + ', '.join(missing_r2_settings)
+        )
 
 # REST Framework settings
 REST_FRAMEWORK = {
@@ -397,3 +421,4 @@ LOGGING = {
         },
     },
 }
+

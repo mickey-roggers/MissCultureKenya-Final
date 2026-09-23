@@ -10,6 +10,8 @@ def _cloudinary_url(field_value, resource_type='image', width=None, height=None,
     url = str(field_value)
     if url.startswith(('http://', 'https://')):
         return url
+    if url.startswith('r2/'):
+        return field_value.url
     
     # Build transformation parameters with optimization
     transformation = [
@@ -34,6 +36,8 @@ def _direct_url_if_external(field_value):
     url = str(field_value)
     if url.startswith(('http://', 'https://')):
         return url
+    if url.startswith('r2/'):
+        return field_value.url
     return None
 
 
@@ -62,7 +66,7 @@ class PhotoSerializer(serializers.ModelSerializer):
             return direct_url
 
         # Generate optimized thumbnail with f_auto, q_auto
-        if obj.image:
+        if obj.image and not str(obj.image).startswith('r2/'):
             return cloudinary.CloudinaryResource(
                 str(obj.image), default_resource_type='image'
             ).build_url(
@@ -82,7 +86,7 @@ class PhotoSerializer(serializers.ModelSerializer):
         if direct_url:
             return direct_url
 
-        if obj.image:
+        if obj.image and not str(obj.image).startswith('r2/'):
             return cloudinary.CloudinaryResource(
                 str(obj.image), default_resource_type='image'
             ).build_url(
@@ -121,7 +125,7 @@ class VideoSerializer(serializers.ModelSerializer):
             return direct_url
 
         # Auto-generate an optimized thumbnail from the video
-        if obj.video_file:
+        if obj.video_file and not str(obj.video_file).startswith('r2/'):
             return cloudinary.CloudinaryResource(
                 str(obj.video_file), default_resource_type='video'
             ).build_url(
@@ -151,3 +155,4 @@ class GallerySettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = GallerySettings
         fields = '__all__'
+

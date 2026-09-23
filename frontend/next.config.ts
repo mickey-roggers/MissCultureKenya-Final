@@ -7,9 +7,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
+      {
+        protocol: "https",
+        hostname: "media.misscultureglobalkenya.com",
+      },
     ],
-    // Disable Next.js image optimization since Cloudinary already handles it
-    // We use Cloudinary's f_auto and q_auto for optimization
+    // Serve public media directly from R2 or Cloudinary during the transition.
     unoptimized: true,
   },
   // Enable compression for better performance
@@ -17,3 +20,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+

@@ -23,6 +23,7 @@ wheels/
 MANIFEST
 
 # Virtual Environment
+v-env/
 venv/
 env/
 ENV/
@@ -156,3 +157,4 @@ backend/check_*.py
 backend/generate_*.py
 backend/deploy.bat
 backend/deploy.sh
+

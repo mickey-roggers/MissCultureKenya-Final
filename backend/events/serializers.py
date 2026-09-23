@@ -13,6 +13,9 @@ def _cloudinary_url(field_value, resource_type='image', width=None, height=None,
         return None
     url = str(field_value)
 
+    if url.startswith('r2/'):
+        return field_value.url
+
     transformation = {
         'fetch_format': 'auto',
         'quality': 'auto:eco',

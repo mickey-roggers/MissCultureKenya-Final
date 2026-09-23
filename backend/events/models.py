@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-import cloudinary.models
+from missculture.media_fields import R2FileField, R2ImageField
 
 
 class Event(models.Model):
@@ -55,7 +55,7 @@ class Event(models.Model):
     longitude = models.FloatField(null=True, blank=True)
 
     # Media
-    featured_image = cloudinary.models.CloudinaryField('featured_image', folder='missculture/events', blank=True, null=True)
+    featured_image = R2ImageField('featured_image', folder='missculture/events', blank=True, null=True)
     gallery = models.ManyToManyField('gallery.Photo', blank=True, related_name='events')
 
     # Additional info
@@ -199,7 +199,7 @@ class Contestant(models.Model):
     beliefs = models.TextField(blank=True, help_text="Personal beliefs or values")
     achievements = models.TextField(blank=True, help_text="Previous awards or accomplishments")
     mission_statement = models.TextField(blank=True, help_text="What they hope to achieve as Miss Culture")
-    photo = cloudinary.models.CloudinaryField('photo', folder='missculture/contestants', blank=True, null=True)
+    photo = R2ImageField('photo', folder='missculture/contestants', blank=True, null=True)
     contestant_number = models.PositiveIntegerField(help_text="Display number shown to voters")
     slug = models.SlugField(help_text="URL-friendly identifier for public page")
     is_active = models.BooleanField(default=True)
@@ -239,7 +239,7 @@ class GuestSpeaker(models.Model):
     name = models.CharField(max_length=200)
     title = models.CharField(max_length=200, blank=True)
     bio = models.TextField(blank=True)
-    photo = cloudinary.models.CloudinaryField('photo', folder='missculture/guest-speakers', blank=True, null=True)
+    photo = R2ImageField('photo', folder='missculture/guest-speakers', blank=True, null=True)
     is_active = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -444,4 +444,5 @@ class FinanceSettings(models.Model):
     def load(cls):
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
+
 
