@@ -12,6 +12,7 @@ import cloudinary.models
 import requests
 from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
+from django.db import connection
 from django.db import models
 
 
@@ -353,10 +354,17 @@ class Command(BaseCommand):
             return False
 
     def _update_field(self, ref: MediaFieldRef, pk, value: str):
-        # CloudinaryField normalizes assigned values during model save, which can
-        # strip extensions from external R2 URLs. QuerySet.update writes the exact
-        # public URL string we want the frontend serializers to return.
-        ref.model.objects.filter(pk=pk).update(**{ref.field.name: value})
+        # CloudinaryField normalizes values even through QuerySet.update(), which
+        # strips extensions from external R2 URLs. Raw SQL writes the exact public
+        # URL string we want the frontend serializers to return.
+        table = connection.ops.quote_name(ref.model._meta.db_table)
+        column = connection.ops.quote_name(ref.field.column)
+        pk_column = connection.ops.quote_name(ref.model._meta.pk.column)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"UPDATE {table} SET {column} = %s WHERE {pk_column} = %s",
+                [value, pk],
+            )
 
     def _summary(self, processed: int, uploaded: int, updated: int, skipped: int, failed: int):
         self.stdout.write("")
